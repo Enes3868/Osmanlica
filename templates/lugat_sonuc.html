@@ -8,7 +8,10 @@
 <ul class="sonuc-listesi">
   {% for k in kartlar %}
   <li class="{{ 'bildi' if k.bildi else 'bilmedi' }}">
-    <span class="osm" lang="ota" dir="rtl">{{ k.kayit.osmanlica }}</span>
+    <span class="osm-kutu">
+      <span class="osm" lang="ota" dir="rtl">{{ k.kayit.osmanlica }}</span>
+      <span class="osm-matbu" lang="ota" dir="rtl" aria-hidden="true">{{ k.kayit.osmanlica }}</span>
+    </span>
     <span><strong>{{ k.okunus }}</strong> — {{ k.kayit.anlam }}</span>
     <span class="isaret">{{ '✓' if k.bildi else '✗' }}</span>
   </li>

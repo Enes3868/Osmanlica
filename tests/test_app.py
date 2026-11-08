@@ -92,3 +92,10 @@ def test_gercek_veri_yuklenir_ve_tutarli(tmp_path):
         assert b.execute("SELECT COUNT(*) FROM kayitlar WHERE anahtar IS NULL").fetchone()[0] == 0
         assert b.execute("SELECT COUNT(*) FROM kayitlar WHERE edebi = 1").fetchone()[0] > 250
     b.close()
+
+
+def test_rika_seciliyken_altta_matbu_yazilis(istemci):
+    istemci.get("/yazi/rika")
+    html = istemci.get("/okuma/kelime").get_data(as_text=True)
+    assert 'class="yazi-rika"' in html
+    assert 'class="osm-matbu"' in html   # CSS yalnızca rik'a seçiliyken gösterir
