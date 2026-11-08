@@ -9,17 +9,6 @@ TESTLER = Path(__file__).resolve().parent
 VERI = TESTLER.parent / "data"
 
 
-@pytest.fixture
-def istemci(tmp_path):
-    # Testler kendi küçük örnek verisini ve geçici veritabanını kullanır; data/sozluk.db'ye dokunmaz.
-    uygulama.app.config.update(
-        TESTING=True,
-        SOZLUK_DB=tmp_path / "test.db",
-        VERI_DOSYALARI=[VERI / "sema.sql", TESTLER / "veri" / "ornek_veri.sql"],
-    )
-    with uygulama.app.test_client() as c:
-        yield c
-
 
 def test_ana_sayfa_iki_mod(istemci):
     html = istemci.get("/").get_data(as_text=True)

@@ -116,6 +116,21 @@ button, .dugme {
   border-top: 1px solid var(--cizgi);
 }
 
+/* Rik'a harfler tablosu: rik'a sütunları seçili yazı biçiminden bağımsız olarak hep rik'a */
+.rika-sabit, .harf-tablosu .rika { font-family: "Aref Ruqaa", "Amiri", serif; }
+.tablo-kap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--cizgi); border-radius: 12px; }
+.harf-tablosu { width: 100%; border-collapse: collapse; background: var(--kart); }
+.harf-tablosu th, .harf-tablosu td {
+  padding: 6px 10px; border-bottom: 1px solid var(--cizgi); text-align: center; white-space: nowrap;
+}
+.harf-tablosu th { font-size: .85rem; color: var(--soluk); background: var(--zemin); position: sticky; top: 0; }
+.harf-tablosu th.rika-baslik { color: var(--vurgu); }
+.harf-tablosu td.matbu { font-family: "Amiri", serif; font-size: 1.8rem; line-height: 1.6; }
+.harf-tablosu td.rika { font-size: 2rem; line-height: 1.8; }
+.harf-tablosu td.ad { text-align: left; }
+.harf-tablosu .harf-not { display: block; font-size: .75rem; color: var(--soluk); white-space: normal; min-width: 140px; }
+.harf-tablosu tbody tr:nth-child(even) { background: color-mix(in srgb, var(--zemin) 40%, var(--kart)); }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --zemin: #1d1a16; --kart: #27231e; --metin: #efe7da; --soluk: #b3a896;

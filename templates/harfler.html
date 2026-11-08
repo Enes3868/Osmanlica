@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block baslik %}Rik'a harfler{% endblock %}
+{% block icerik %}
+<h1>Rik'a harfler</h1>
+<p>Osmanlıca harfler kelimedeki yerine göre şekil değiştirir. Tabloda her harfin matbu (bilgisayar yazısı) hâli,
+  Latin karşılığı ve rik'a ile tek başına, başta, ortada ve sonda yazılışı var.</p>
+<p class="not"><bdi class="osm" lang="ota">ا د ذ ر ز ژ و</bdi> harfleri kendinden sonraki harfe bağlanmaz; bu yüzden başta ve ortada da
+  bağlanmamış biçimde görünürler.</p>
+
+<div class="tablo-kap">
+  <table class="harf-tablosu" dir="rtl">
+    <thead>
+      <tr>
+        <th>Matbu</th>
+        <th>Adı</th>
+        <th>Latin</th>
+        <th class="rika-baslik">Tek başına</th>
+        <th class="rika-baslik">Başta</th>
+        <th class="rika-baslik">Ortada</th>
+        <th class="rika-baslik">Sonda</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for h in harfler %}
+      <tr>
+        <td class="matbu" lang="ota">{{ h.harf }}</td>
+        <td class="ad" dir="ltr">{{ h.ad }}{% if h.not_ %}<span class="harf-not">{{ h.not_ }}</span>{% endif %}</td>
+        <td class="latin" dir="ltr">{{ h.latin }}</td>
+        <td class="rika" lang="ota">{{ h.tek }}</td>
+        <td class="rika" lang="ota">{{ h.basta }}</td>
+        <td class="rika" lang="ota">{{ h.ortada }}</td>
+        <td class="rika" lang="ota">{{ h.sonda }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

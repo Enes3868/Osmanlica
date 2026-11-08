@@ -9,6 +9,7 @@ import threading
 from flask import Flask, abort, g, make_response, redirect, render_template, request
 
 from checker import kontrol_et
+from harfler import HARFLER, LAMELIF
 
 KOK = Path(__file__).resolve().parent
 VERI = KOK / "data"
@@ -181,6 +182,11 @@ def lugat():
         for k in kayitlar
     ]
     return render_template("lugat.html", kartlar=kartlar)
+
+
+@app.route("/harfler")
+def harfler():
+    return render_template("harfler.html", harfler=HARFLER + [LAMELIF])
 
 
 @app.route("/kaynaklar")
