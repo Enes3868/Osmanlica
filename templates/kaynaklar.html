@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block baslik %}Kaynaklar{% endblock %}
+{% block icerik %}
+<h1>Kaynaklar</h1>
+{% for k in kaynaklar %}
+<div class="kart kaynak">
+  <h2>{{ k.ad }}</h2>
+  <p>{{ k.kayit_sayisi }} kayıt · Lisans: <strong>{{ k.lisans }}</strong>
+    {% if k.yazar %}· {{ k.yazar }}{% endif %}{% if k.yil %} · {{ k.yil }}{% endif %}</p>
+  {% if k.url %}<p><a href="{{ k.url }}" rel="noopener">{{ k.url }}</a></p>{% endif %}
+  {% if k.notlar %}<p class="not">{{ k.notlar }}</p>{% endif %}
+</div>
+{% endfor %}
+<p class="not">Sözlük verisi <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.tr">CC BY-SA 4.0</a>
+  lisansıyla paylaşılır. Uygulamanın kodu MIT lisanslıdır. Yazı tipleri (Amiri, Aref Ruqaa) SIL Open Font License 1.1 ile dağıtılır.</p>
+{% endblock %}

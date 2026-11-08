@@ -18,7 +18,10 @@
 <div class="sonuc {{ 'dogru' if sonuc.dogru else 'yanlis' }}">
   {% if sonuc.dogru %}
     <p class="durum">Doğru!</p>
-    {% if sonuc.yazim_farki %}
+    {% if sonuc.farkli_kelime %}
+      <p>Bu yazılış <strong>{{ sonuc.eslesen }}</strong> diye de okunur
+        ({{ diger_anlamlar[sonuc.eslesen] }}). Kartın kelimesi: <strong>{{ sonuc.asil }}</strong>.</p>
+    {% elif sonuc.yazim_farki %}
       <p>Yazımı: <strong>{{ sonuc.eslesen }}</strong></p>
     {% endif %}
   {% else %}
@@ -27,15 +30,18 @@
     <p>Doğrusu: <strong>{{ sonuc.asil }}</strong></p>
   {% endif %}
 
-  {% if sonuc.digerleri %}
-    <p class="not">
-      Bu yazılış için kabul edilen diğer okunuşlar:
-      {% for o in sonuc.digerleri %}<strong>{{ o }}</strong>{{ ", " if not loop.last }}{% endfor %}.
-      Farklı kelimelerse hangisi olduğu cümlenin gidişatından anlaşılır.
-    </p>
+  {% if sonuc.cesitler %}
+    <p class="not">Diğer yazımları:
+      {% for o in sonuc.cesitler %}<strong>{{ o }}</strong>{{ ", " if not loop.last }}{% endfor %}.</p>
+  {% endif %}
+  {% if sonuc.farkli_kelimeler %}
+    <p class="not">Aynı yazılış başka kelimeler olarak da okunabilir:
+      {% for o in sonuc.farkli_kelimeler %}<strong>{{ o }}</strong> ({{ diger_anlamlar[o] }}){{ "; " if not loop.last }}{% endfor %}.
+      Hangisi olduğu cümlenin gidişatından anlaşılır.</p>
   {% endif %}
 
-  <p class="anlam">Anlamı: {{ kayit.anlam }}</p>
+  <p class="anlam">Anlamı: {{ kayit.anlam }}
+    {% if kayit.anlam_ai %}<span class="rozet" title="İngilizce aslı: {{ kayit.anlam_ingilizce }}">AI çevirisi</span>{% endif %}</p>
 </div>
 <a class="dugme" href="{{ url_for('okuma', tur=tur, onceki=kayit.id) }}" autofocus>Sonraki kart →</a>
 {% endif %}

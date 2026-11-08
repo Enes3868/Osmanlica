@@ -101,6 +101,21 @@ button, .dugme {
 .kartlar details[open] { border-color: var(--vurgu); }
 .kartlar .anlam { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--cizgi); }
 
+.kartlar .arka { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cizgi); text-align: left; }
+.kartlar .arka p { margin: 4px 0; }
+.kartlar .arka .anlam { margin: 4px 0; padding: 0; border: 0; }
+.ai-not { font-size: .8rem; color: var(--soluk); }
+.rozet {
+  display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .75rem;
+  border: 1px solid var(--cizgi); color: var(--soluk); vertical-align: middle;
+}
+.kart.kaynak { text-align: left; margin-bottom: 12px; }
+.kart.kaynak h2 { font-size: 1.1rem; margin: 0 0 6px; }
+.alt {
+  max-width: 760px; margin: 0 auto; padding: 16px; font-size: .8rem; color: var(--soluk);
+  border-top: 1px solid var(--cizgi);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --zemin: #1d1a16; --kart: #27231e; --metin: #efe7da; --soluk: #b3a896;

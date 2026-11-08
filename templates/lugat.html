@@ -10,7 +10,13 @@
       <span class="osm" lang="ota" dir="rtl">{{ k.kayit.osmanlica }}</span>
       <span class="okunus">{{ k.okunus }}</span>
     </summary>
-    <p class="anlam">{{ k.kayit.anlam }}</p>
+    <div class="arka">
+      {% if k.kayit.gunumuz %}<p class="gunumuz">Günümüzde: <strong>{{ k.kayit.gunumuz }}</strong></p>{% endif %}
+      <p class="anlam">{{ k.kayit.anlam }}</p>
+      {% if k.kayit.anlam_ai %}
+        <p class="ai-not"><span class="rozet">AI çevirisi</span> İngilizce aslı: {{ k.kayit.anlam_ingilizce }}</p>
+      {% endif %}
+    </div>
   </details>
   {% endfor %}
 </div>

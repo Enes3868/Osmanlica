@@ -1,0 +1,25 @@
+Sözlük verisi — Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+
+Bu klasördeki sözlük verisi (vikisozluk_secim.csv, vikisozluk_anlamlar.csv,
+vikisozluk.sql) Vikisözlük'ün (İngilizce Wiktionary) Osmanlıca maddelerinden
+türetilmiştir ve CC BY-SA 4.0 lisansıyla paylaşılır:
+https://creativecommons.org/licenses/by-sa/4.0/legalcode.tr
+
+Kaynak ve atıf
+- Asıl içerik: Wiktionary katkıcıları, "Ottoman Turkish" maddeleri,
+  https://en.wiktionary.org/wiki/Category:Ottoman_Turkish_language
+- Makinece okunabilir döküm: kaikki.org (Tatu Ylonen, wiktextract),
+  2024-12-04 tarihli Wiktionary dökümünden çıkarılmış veri,
+  https://kaikki.org/dictionary/Ottoman%20Turkish/
+
+Yapılan değişiklikler
+- Kelime ve cümlelerin bir alt kümesi seçildi (scripts/vikisozluk_sec.py).
+- Okunuşlardaki ayn/hemze işaretleri kaldırıldı.
+- İngilizce anlamlar yapay zekâ (Claude) ile Türkçeye çevrildi; bu çeviriler
+  kontrol edilmemiştir ve uygulamada "AI çevirisi" olarak işaretlenir.
+- Yazar ya da eser belirtilen alıntı cümleler alınmadı.
+
+Bu veriyi kullanırsanız aynı lisansla (CC BY-SA 4.0) paylaşmalı ve
+yukarıdaki kaynakları belirtmelisiniz.
+
+Not: data/sema.sql (tablo tanımları) kodun parçasıdır ve MIT lisanslıdır.

@@ -1,4 +1,4 @@
--- ÖRNEK VERİ
+-- TEST İÇİN ÖRNEK VERİ (uygulama bu dosyayı kullanmaz; testler kullanır)
 -- Bu kayıtlar uygulamayı denemek için proje içinde elle yazılmıştır;
 -- herhangi bir sözlükten kopyalanmamıştır. Gerçek kaynaklar lisansları
 -- doğrulandıktan sonra eklenecektir.
@@ -12,7 +12,7 @@ INSERT INTO kayitlar (id, osmanlica, anlam, tur, kaynak_id) VALUES
     (1,  'مرحبا',   'Selam; karşılaşınca söylenen iyi dilek sözü.', 'kelime', 1),
     (2,  'کتاب',    'Kitap.', 'kelime', 1),
     (3,  'کاتب',    'Yazı yazan kimse, yazıcı; kâtip.', 'kelime', 1),
-    (4,  'کل',      'Yazılışı aynı, okunuşu farklı birkaç kelime: gel (gelmek), gül (çiçek), kül, kel.', 'kelime', 1),
+    (4,  'کل',      'Gel (gelmek fiilinin emri).', 'kelime', 1),
     (5,  'قلم',     'Kalem; yazı yazma aracı.', 'kelime', 1),
     (6,  'اکمک',    'Ekmek.', 'kelime', 1),
     (7,  'صو',      'Su.', 'kelime', 1),
@@ -33,13 +33,16 @@ INSERT INTO kayitlar (id, osmanlica, anlam, tur, kaynak_id) VALUES
     (22, 'حکمت',    'Bilgelik; bir şeyin gizli sebebi.', 'kelime', 1),
     (23, 'کتبخانه', 'Kütüphane.', 'kelime', 1),
     (24, 'ایام',    'Günler.', 'kelime', 1),
-    (25, 'تحصیل',   'Öğrenim, okuyup öğrenme.', 'kelime', 1);
+    (25, 'تحصیل',   'Öğrenim, okuyup öğrenme.', 'kelime', 1),
+    (26, 'کل',      'Gül (çiçek).', 'kelime', 1),
+    (27, 'کل',      'Kül.', 'kelime', 1),
+    (28, 'کل',      'Kel, saçsız.', 'kelime', 1);
 
 INSERT INTO okunuslar (kayit_id, okunus, asil) VALUES
     (1,  'merhaba', 1),
     (2,  'kitâb', 1),  (2,  'kitap', 0),
     (3,  'kâtib', 1),  (3,  'kâtip', 0),
-    (4,  'gel', 1),    (4,  'gül', 0),   (4, 'kül', 0),  (4, 'kel', 0),
+    (4,  'gel', 1),    (26, 'gül', 1),   (27, 'kül', 1), (28, 'kel', 1),
     (5,  'kalem', 1),
     (6,  'ekmek', 1),
     (7,  'su', 1),

@@ -12,3 +12,7 @@ data/*.db
 
 # VibeWise öğrenme notları (kişisel)
 .vibe-wise/
+
+# Ham indirme (büyük; scripts/vikisozluk_indir.py ile yeniden indirilir)
+data/ham/
+data/*.tmp

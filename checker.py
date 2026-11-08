@@ -4,14 +4,17 @@ Kurallar (onaylanan tasarım):
 - Büyük-küçük harf farkı önemsizdir; Türkçe kuralı kullanılır (I→ı, İ→i).
 - ı ile i ayrı harflerdir ("kıl" ≠ "kil").
 - Şapka farkı hata değildir (â→a, î→i, û→u); ekranda doğru yazım gösterilir.
-- Noktalama ve fazla boşluklar önemsizdir (cümleler için).
-- Bir kaydın birden çok geçerli okunuşu olabilir; hepsi doğru sayılır.
+- Noktalama, kesme işareti ve fazla boşluklar önemsizdir (cümleler için).
+- Aynı yazılışın birden çok geçerli okunuşu olabilir; hepsi doğru sayılır:
+    * yazım çeşitleri: aynı kelimenin farklı yazımları (kitâb / kitap)
+    * farklı kelimeler: aynı harflerle yazılan başka kelimeler (gel / gül)
 """
 
 from dataclasses import dataclass, field
 import unicodedata
 
 SAPKALAR = str.maketrans({"â": "a", "î": "i", "û": "u"})
+KESME_ISARETLERI = str.maketrans({"'": None, "’": None, "ʼ": None})
 
 
 def turkce_kucuk_harf(metin: str) -> str:
@@ -24,8 +27,8 @@ def normallestir(metin: str) -> str:
     """Karşılaştırma için metni sadeleştirir."""
     # NFC: "a" + birleşik şapka gibi ayrık yazılmış harfleri tek harfe birleştirir.
     metin = unicodedata.normalize("NFC", metin)
-    metin = turkce_kucuk_harf(metin).translate(SAPKALAR)
-    # Harf ve rakam dışındaki her şeyi (noktalama, kesme işareti) boşluğa çevir.
+    metin = turkce_kucuk_harf(metin).translate(SAPKALAR).translate(KESME_ISARETLERI)
+    # Harf ve rakam dışındaki her şeyi (noktalama, tire) boşluğa çevir.
     metin = "".join(h if h.isalnum() else " " for h in metin)
     return " ".join(metin.split())
 
@@ -33,30 +36,43 @@ def normallestir(metin: str) -> str:
 @dataclass
 class Sonuc:
     dogru: bool
-    asil: str                      # ekranda gösterilecek doğru yazım
-    eslesen: str | None = None     # kullanıcının cevabının eşleştiği okunuş
-    digerleri: list[str] = field(default_factory=list)  # diğer geçerli okunuşlar
-    yazim_farki: bool = False      # doğru, ama yazımı gösterilen biçimden farklı
+    asil: str                       # kartın kelimesinin ekranda gösterilecek doğru yazımı
+    eslesen: str | None = None      # kullanıcının cevabının eşleştiği okunuş
+    yazim_farki: bool = False       # doğru, ama yazımı gösterilen biçimden farklı
+    farkli_kelime: bool = False     # doğru, ama aynı yazılışlı başka bir kelime olarak okudu
+    cesitler: list[str] = field(default_factory=list)          # kartın kelimesinin diğer yazımları
+    farkli_kelimeler: list[str] = field(default_factory=list)  # aynı yazılışın diğer kelimeleri
 
 
-def kontrol_et(cevap: str, okunuslar: list[tuple[str, bool]]) -> Sonuc:
-    """okunuslar: (okunuş, asıl_mı) çiftleri. Tam olarak birinin asıl olması beklenir."""
+def kontrol_et(cevap: str, okunuslar: list[tuple[str, bool]],
+               farkli_kelimeler: list[str] | None = None) -> Sonuc:
+    """okunuslar: kartın kelimesinin (okunuş, asıl_mı) çiftleri; tam olarak biri asıl olmalı.
+    farkli_kelimeler: aynı Osmanlıca yazılışa sahip başka kelimelerin asıl okunuşları."""
+    farkli_kelimeler = farkli_kelimeler or []
     asil = next((o for o, a in okunuslar if a), okunuslar[0][0])
-    tum = [o for o, _ in okunuslar]
+    kendi = [o for o, _ in okunuslar]
     aranan = normallestir(cevap)
 
-    eslesen = None
-    if aranan:
-        eslesen = next((o for o in tum if normallestir(o) == aranan), None)
+    def bul(liste):
+        return next((o for o in liste if normallestir(o) == aranan), None) if aranan else None
+
+    eslesen = bul(kendi)
+    farkli = False
+    if eslesen is None:
+        eslesen = bul(farkli_kelimeler)
+        farkli = eslesen is not None
 
     if eslesen is None:
-        return Sonuc(dogru=False, asil=asil, digerleri=[o for o in tum if o != asil])
+        return Sonuc(dogru=False, asil=asil, cesitler=[o for o in kendi if o != asil],
+                     farkli_kelimeler=farkli_kelimeler)
 
-    yazim_farki = unicodedata.normalize("NFC", cevap.strip()) != eslesen
     return Sonuc(
         dogru=True,
         asil=asil,
         eslesen=eslesen,
-        digerleri=[o for o in tum if o != eslesen],
-        yazim_farki=yazim_farki,
+        yazim_farki=unicodedata.normalize("NFC", cevap.strip()) != eslesen,
+        farkli_kelime=farkli,
+        # Başka kelime olarak okuduysa kartın asıl okunuşu zaten ayrıca gösterilir.
+        cesitler=[o for o in kendi if o != eslesen and not (farkli and o == asil)],
+        farkli_kelimeler=[o for o in farkli_kelimeler if o != eslesen],
     )
