@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block baslik %}Lügat: oturum sonu{% endblock %}
+{% block icerik %}
+{% set bilinen = kartlar | selectattr('bildi') | list | length %}
+<h1>Oturum bitti</h1>
+<p class="ozet"><strong>{{ bilinen }}</strong> biliyorum · <strong>{{ kartlar | length - bilinen }}</strong> bilmiyorum</p>
+
+<ul class="sonuc-listesi">
+  {% for k in kartlar %}
+  <li class="{{ 'bildi' if k.bildi else 'bilmedi' }}">
+    <span class="osm" lang="ota" dir="rtl">{{ k.kayit.osmanlica }}</span>
+    <span><strong>{{ k.okunus }}</strong> — {{ k.kayit.anlam }}</span>
+    <span class="isaret">{{ '✓' if k.bildi else '✗' }}</span>
+  </li>
+  {% endfor %}
+</ul>
+
+<div class="sonuc-dugmeleri">
+  <form method="post" action="{{ url_for('lugat_yeni') }}">
+    <input type="hidden" name="mod" value="devam">
+    <button type="submit" class="dugme">Devam et</button>
+  </form>
+  <form method="post" action="{{ url_for('lugat_yeni') }}">
+    <input type="hidden" name="mod" value="yeni">
+    <button type="submit" class="dugme ikincil">Yeni kelimeler</button>
+  </form>
+</div>
+<p class="not">"Devam et": bilmediğiniz kelimeler tekrar gelir, arada bildiğiniz eski bir kelime çıkar, kalanı yeni.
+  "Yeni kelimeler": hiç görmediğiniz 5 kelime. Şimdiye kadar {{ gorulen }} farklı kelime çalıştınız.</p>
+{% endblock %}

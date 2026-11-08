@@ -48,9 +48,6 @@ def test_tur_uyusmazligi_reddedilir(istemci):
     assert istemci.post("/okuma/kelime", data={"kayit_id": 101, "cevap": "x"}).status_code == 400
 
 
-def test_lugat_kartlari(istemci):
-    html = istemci.get("/lugat").get_data(as_text=True)
-    assert html.count("<details") == 6
 
 
 def test_kaynaklar_sayfasi(istemci):
@@ -91,4 +88,7 @@ def test_gercek_veri_yuklenir_ve_tutarli(tmp_path):
             "WHERE o.kayit_id = k.id AND o.asil = 1) != 1").fetchone()[0]
         assert asilsiz == 0
         assert b.execute("SELECT lisans FROM kaynaklar").fetchall() == [("CC BY-SA 4.0",)]
+        # İlerleme kaydı kalıcı anahtara bağlı: her kayıtta olmalı ve benzersiz olmalı (UNIQUE).
+        assert b.execute("SELECT COUNT(*) FROM kayitlar WHERE anahtar IS NULL").fetchone()[0] == 0
+        assert b.execute("SELECT COUNT(*) FROM kayitlar WHERE edebi = 1").fetchone()[0] > 250
     b.close()

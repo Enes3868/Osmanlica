@@ -3,12 +3,13 @@
 Osmanlıca okuma pratiği ve eski Türkçe lügat çalışmak için kart tabanlı bir uygulama.
 
 - **Osmanlıca okuma:** Kartta Arap harfleriyle yazılmış kelimeyi ya da ifadeyi okuyup Latin harfleriyle yazın. Uygulama doğru/yanlış olduğunu söyler, doğru okunuşu, diğer yazımları ve aynı yazılışla okunabilen başka kelimeleri gösterir.
-- **Lügat:** Eski kelimelerin kartlarını okuyun; karta basınca kelimenin günümüzdeki biçimi ve anlamı açılır.
+- **Lügat:** Kartlar birer birer gelir; karta dokununca anlam açılır, "Biliyorum / Bilmiyorum" ile cevaplarsınız. 5 kartlık oturumlardan sonra bilmedikleriniz tekrar gelir, bildikleriniz arada tekrarlanır. Halk dili ve tarih metinlerindeki edebi dil (Arapça/Farsça kökenli kelimeler) karışık gelir. İlerlemeniz `instance/ilerleme.db` dosyasında saklanır ve hiç silinmez.
+- **Rik'a harfler:** Bütün harflerin rik'a ile başta, ortada ve sonda yazılışları.
 - Osmanlıca metin **matbu** (Amiri) ya da **rik'a** (Aref Ruqaa) yazıyla gösterilebilir.
 
 ## Veri
 
-Sözlük verisi [Vikisözlük (Wiktionary)](https://en.wiktionary.org/wiki/Category:Ottoman_Turkish_language) Osmanlıca maddelerinden alınmıştır (yaklaşık 520 kelime ve 45 ifade). Arap harfli yazılışlar, okunuşlar ve günümüz biçimleri Vikisözlük'tendir.
+Sözlük verisi [Vikisözlük (Wiktionary)](https://en.wiktionary.org/wiki/Category:Ottoman_Turkish_language) Osmanlıca maddelerinden alınmıştır (yaklaşık 820 kelime — 300'ü edebi dilden — ve 45 ifade). Arap harfli yazılışlar, okunuşlar ve günümüz biçimleri Vikisözlük'tendir.
 
 > **Türkçe anlamlar, Vikisözlük'teki İngilizce anlamlardan yapay zekâ ile çevrilmiştir ve henüz kontrol edilmemiştir.** Uygulamada "AI çevirisi" olarak işaretlenir; İngilizce aslı da gösterilir.
 

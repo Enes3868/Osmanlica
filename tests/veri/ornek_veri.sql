@@ -77,3 +77,10 @@ INSERT INTO okunuslar (kayit_id, okunus, asil) VALUES
     (102, 'bu kitâb çok güzel', 1), (102, 'bu kitap çok güzel', 0),
     (103, 'sabahlar hayırlı olsun', 1),
     (104, 'İstanbul güzel bir şehirdir', 1);
+
+-- Kalıcı anahtarlar (uygulama ilerlemeyi bunlara bağlar)
+UPDATE kayitlar SET anahtar = osmanlica || '|' ||
+    (SELECT okunus FROM okunuslar o WHERE o.kayit_id = kayitlar.id AND o.asil = 1);
+
+-- Edebi örnek kelimeler
+UPDATE kayitlar SET edebi = 1, koken = 'ar' WHERE id IN (16, 17, 18, 22);

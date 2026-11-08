@@ -1,24 +1,44 @@
 {% extends "base.html" %}
 {% block baslik %}Lügat{% endblock %}
 {% block icerik %}
-<h1>Lügat</h1>
-<p>Kelimeyi okuyun, anlamını görmek için karta basın.</p>
-<div class="kartlar">
-  {% for k in kartlar %}
-  <details class="kart">
-    <summary>
-      <span class="osm" lang="ota" dir="rtl">{{ k.kayit.osmanlica }}</span>
-      <span class="okunus">{{ k.okunus }}</span>
-    </summary>
-    <div class="arka">
-      {% if k.kayit.gunumuz %}<p class="gunumuz">Günümüzde: <strong>{{ k.kayit.gunumuz }}</strong></p>{% endif %}
-      <p class="anlam">{{ k.kayit.anlam }}</p>
-      {% if k.kayit.anlam_ai %}
-        <p class="ai-not"><span class="rozet">AI çevirisi</span> İngilizce aslı: {{ k.kayit.anlam_ingilizce }}</p>
-      {% endif %}
-    </div>
-  </details>
-  {% endfor %}
+<div class="lugat-ust">
+  <a class="geri" href="{{ url_for('ana_sayfa') }}" aria-label="Ana sayfa">←</a>
+  <div class="ilerleme-cubugu" aria-label="Kart {{ sira }} / {{ toplam }}">
+    <span>{{ '%02d' % sira }}</span>
+    <span class="cizgi"><span style="width: {{ (sira / toplam * 100) | round }}%"></span></span>
+    <span>{{ '%02d' % toplam }}</span>
+  </div>
+  <form method="post" action="{{ url_for('lugat_yeni') }}">
+    <input type="hidden" name="mod" value="yeni">
+    <button class="metin-dugme" type="submit">Yeni kelimeler</button>
+  </form>
 </div>
-<a class="dugme" href="{{ url_for('lugat') }}">Yeni kartlar →</a>
+
+{# Kartı çevirmek için gizli bir onay kutusu kullanılır: JavaScript gerekmez. #}
+<input type="checkbox" id="cevir" class="cevir-kutusu">
+<label for="cevir" class="donen-kart">
+  <span class="yuz on">
+    <span class="osm" lang="ota" dir="rtl">{{ kayit.osmanlica }}</span>
+    <span class="okunus">{{ okunus }}</span>
+    {% if kayit.edebi %}<span class="rozet">edebi</span>{% endif %}
+    <span class="ipucu">Anlamı görmek için dokunun</span>
+  </span>
+  <span class="yuz arka">
+    <span class="arka-baslik">{{ okunus }}</span>
+    {% if kayit.gunumuz and kayit.gunumuz != okunus %}<span class="gunumuz">Günümüzde: <strong>{{ kayit.gunumuz }}</strong></span>{% endif %}
+    <span class="anlam">{{ kayit.anlam }}</span>
+    <span class="etiketler">
+      {% if kayit.koken == 'ar' %}<span class="rozet">Arapça kökenli</span>{% elif kayit.koken == 'fa' %}<span class="rozet">Farsça kökenli</span>{% endif %}
+      {% if kayit.edebi %}<span class="rozet">edebi</span>{% endif %}
+      {% if kayit.anlam_ai %}<span class="rozet" title="İngilizce aslı: {{ kayit.anlam_ingilizce }}">AI çevirisi</span>{% endif %}
+    </span>
+    {% if kayit.anlam_ai %}<span class="ai-not">İngilizce aslı: {{ kayit.anlam_ingilizce }}</span>{% endif %}
+  </span>
+</label>
+
+<form method="post" action="{{ url_for('lugat_cevap') }}" class="cevap-dugmeleri">
+  <input type="hidden" name="anahtar" value="{{ kayit.anahtar }}">
+  <button type="submit" name="bildi" value="0" class="bilmiyorum">Bilmiyorum</button>
+  <button type="submit" name="bildi" value="1" class="biliyorum">Biliyorum</button>
+</form>
 {% endblock %}

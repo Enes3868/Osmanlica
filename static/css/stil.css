@@ -116,6 +116,57 @@ button, .dugme {
   border-top: 1px solid var(--cizgi);
 }
 
+/* ---------- Lügat: tek kart, dokununca döner ---------- */
+.lugat-ust { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.lugat-ust .geri { font-size: 1.4rem; text-decoration: none; color: var(--soluk); }
+.ilerleme-cubugu { flex: 1; display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--soluk); }
+.ilerleme-cubugu .cizgi { flex: 1; height: 3px; background: var(--cizgi); border-radius: 2px; overflow: hidden; }
+.ilerleme-cubugu .cizgi span { display: block; height: 100%; background: var(--vurgu); }
+.metin-dugme { background: none; color: var(--vurgu); padding: 4px 8px; margin: 0; font-size: .9rem; }
+
+.cevir-kutusu { position: absolute; opacity: 0; pointer-events: none; }
+.donen-kart {
+  display: block; position: relative; height: 340px; perspective: 1200px; cursor: pointer;
+  margin: 0 auto 20px; max-width: 420px;
+}
+.donen-kart .yuz {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 24px; text-align: center; border-radius: 20px;
+  background: var(--kart); border: 1px solid var(--cizgi);
+  box-shadow: 0 14px 30px rgb(0 0 0 / .12), 0 6px 0 -2px var(--cizgi);
+  backface-visibility: hidden; transition: transform .5s ease;
+}
+.donen-kart .arka { transform: rotateY(180deg); }
+.cevir-kutusu:checked + .donen-kart .on { transform: rotateY(-180deg); }
+.cevir-kutusu:checked + .donen-kart .arka { transform: rotateY(0); }
+.cevir-kutusu:focus-visible + .donen-kart .yuz { outline: 2px solid var(--vurgu); outline-offset: 3px; }
+.donen-kart .on .osm { font-size: clamp(2.6rem, 10vw, 3.6rem); line-height: 1.7; }
+.donen-kart .okunus { font-size: 1.1rem; color: var(--soluk); }
+.donen-kart .ipucu { position: absolute; bottom: 18px; font-size: .8rem; color: var(--soluk); }
+.donen-kart .arka-baslik { font-size: 1.5rem; font-weight: 700; }
+.donen-kart .anlam { font-size: 1.05rem; }
+.donen-kart .etiketler { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+@media (prefers-reduced-motion: reduce) { .donen-kart .yuz { transition: none; } }
+
+.cevap-dugmeleri { display: flex; gap: 12px; max-width: 420px; margin: 0 auto; }
+.cevap-dugmeleri button { flex: 1; margin: 0; padding: 14px; font-size: 1rem; }
+.cevap-dugmeleri .bilmiyorum { background: var(--yanlis-zemin); color: var(--yanlis); }
+.cevap-dugmeleri .biliyorum { background: var(--dogru-zemin); color: var(--dogru); }
+/* Anlam görülmeden cevap verilmesin: düğmeler kart çevrilince belirir. */
+.cevir-kutusu:not(:checked) ~ .cevap-dugmeleri { visibility: hidden; }
+
+.ozet { font-size: 1.1rem; }
+.sonuc-listesi { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 8px; }
+.sonuc-listesi li {
+  display: grid; grid-template-columns: 90px 1fr auto; align-items: center; gap: 12px;
+  padding: 8px 14px; background: var(--kart); border: 1px solid var(--cizgi); border-radius: 10px;
+}
+.sonuc-listesi .osm { font-size: 1.6rem; line-height: 1.6; text-align: right; }
+.sonuc-listesi .bildi .isaret { color: var(--dogru); font-weight: 700; }
+.sonuc-listesi .bilmedi .isaret { color: var(--yanlis); font-weight: 700; }
+.sonuc-dugmeleri { display: flex; gap: 12px; flex-wrap: wrap; }
+.dugme.ikincil { background: transparent; color: var(--vurgu); border: 1px solid var(--vurgu); }
+
 /* Rik'a harfler tablosu: rik'a sütunları seçili yazı biçiminden bağımsız olarak hep rik'a */
 .rika-sabit, .harf-tablosu .rika { font-family: "Aref Ruqaa", "Amiri", serif; }
 .tablo-kap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--cizgi); border-radius: 12px; }

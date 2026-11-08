@@ -46,9 +46,11 @@ def main():
     for kayit_id, s in enumerate(secim, start=1):
         okunuslar = [o.strip() for o in s["okunuslar"].split(";") if o.strip()]
         satirlar.append(
-            "INSERT INTO kayitlar (id, osmanlica, anlam, anlam_ai, anlam_ingilizce, gunumuz, tur, kaynak_id) "
-            f"VALUES ({kayit_id}, {sql(s['osmanlica'])}, {sql(anlamlar[s['anahtar']])}, 1, "
-            f"{sql(s['ingilizce'].replace(' ¦ ', '; '))}, {sql(s['gunumuz'])}, {sql(s['tur'])}, {KAYNAK_ID});"
+            "INSERT INTO kayitlar (id, anahtar, osmanlica, anlam, anlam_ai, anlam_ingilizce, gunumuz, koken, "
+            "edebi, tur, kaynak_id) "
+            f"VALUES ({kayit_id}, {sql(s['anahtar'])}, {sql(s['osmanlica'])},{sql(anlamlar[s['anahtar']])}, 1, "
+            f"{sql(s['ingilizce'].replace(' ¦ ', '; '))}, {sql(s['gunumuz'])}, {sql(s.get('koken'))}, "
+            f"{1 if s.get('edebi') == '1' else 0}, {sql(s['tur'])}, {KAYNAK_ID});"
         )
         for i, o in enumerate(okunuslar):
             satirlar.append(

@@ -19,6 +19,8 @@ def istemci(tmp_path):
         TESTING=True,
         SOZLUK_DB=tmp_path / "test.db",
         VERI_DOSYALARI=[VERI / "sema.sql", TESTLER / "veri" / "ornek_veri.sql"],
+        ILERLEME_DB=tmp_path / "ilerleme.db",
+        SECRET_KEY="test",
     )
     with uygulama.app.test_client() as c:
         yield c

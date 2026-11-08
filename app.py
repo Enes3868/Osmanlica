@@ -3,13 +3,15 @@
 import hashlib
 import os
 from pathlib import Path
+import secrets
 import sqlite3
 import threading
 
-from flask import Flask, abort, g, make_response, redirect, render_template, request
+from flask import Flask, abort, g, make_response, redirect, render_template, request, session, url_for
 
 from checker import kontrol_et
 from harfler import HARFLER, LAMELIF
+import ilerleme
 
 KOK = Path(__file__).resolve().parent
 VERI = KOK / "data"
@@ -21,7 +23,22 @@ app.config.update(
     SOZLUK_DB=VERI / "sozluk.db",
     # Veritabanı bu SQL dosyalarından (sırayla) oluşturulur.
     VERI_DOSYALARI=[VERI / "sema.sql", VERI / "vikisozluk.sql"],
+    # Kullanıcının ilerlemesi: ayrı dosya, Git'e eklenmez, hiçbir kayıt silinmez.
+    ILERLEME_DB=Path(app.instance_path) / "ilerleme.db",
+    SESSION_COOKIE_SAMESITE="Lax",
 )
+
+
+def gizli_anahtar(klasor: Path) -> str:
+    """Oturum çerezini imzalamak için anahtar: ilk açılışta üretilir, instance/ klasöründe saklanır."""
+    dosya = klasor / "gizli_anahtar"
+    if not dosya.exists():
+        klasor.mkdir(parents=True, exist_ok=True)
+        dosya.write_text(secrets.token_hex(32), encoding="utf-8")
+    return dosya.read_text(encoding="utf-8").strip()
+
+
+app.secret_key = os.environ.get("GIZLI_ANAHTAR") or gizli_anahtar(Path(app.instance_path))
 
 
 # ---------- Veritabanı ----------
@@ -172,16 +189,90 @@ def okuma(tur):
     return render_template("okuma.html", tur=tur, tur_adi=TURLER[tur], kayit=kayit)
 
 
+# ---------- Lügat: tek tek kartlar, Biliyorum / Bilmiyorum ----------
+
+def ilerleme_db() -> sqlite3.Connection:
+    if "ilerleme" not in g:
+        g.ilerleme = ilerleme.baglan(Path(app.config["ILERLEME_DB"]))
+    return g.ilerleme
+
+
+@app.teardown_appcontext
+def ilerleme_kapat(_hata):
+    b = g.pop("ilerleme", None)
+    if b is not None:
+        b.close()
+
+
+def lugat_kaydi(anahtar: str):
+    return db().execute("SELECT * FROM kayitlar WHERE anahtar = ? AND tur = 'kelime'", (anahtar,)).fetchone()
+
+
+def yeni_lugat_oturumu(mod: str) -> None:
+    """Oturumdaki kartlar imzalı çerezde (Flask session) tutulur; cevaplar ilerleme.db'ye yazılır."""
+    tum = [s["anahtar"] for s in db().execute("SELECT anahtar FROM kayitlar WHERE tur = 'kelime'")]
+    onceki = session.get("lugat", {})
+    onceki_bilinmeyen = [a for a, bildi in onceki.get("sonuc", {}).items() if not bildi]
+    kartlar = ilerleme.oturum_sec(tum, ilerleme.son_durumlar(ilerleme_db()), mod, onceki_bilinmeyen)
+    session["lugat"] = {"kartlar": kartlar, "sira": 0, "sonuc": {}}
+
+
 @app.route("/lugat")
 def lugat():
-    kayitlar = db().execute(
-        "SELECT * FROM kayitlar WHERE tur = 'kelime' ORDER BY RANDOM() LIMIT 6"
-    ).fetchall()
-    kartlar = [
-        {"kayit": k, "okunus": next((o for o, a in okunuslar(k["id"]) if a), "")}
-        for k in kayitlar
-    ]
-    return render_template("lugat.html", kartlar=kartlar)
+    oturum = session.get("lugat")
+    if not oturum or oturum["sira"] >= len(oturum["kartlar"]):
+        if oturum:  # bitmiş oturum: özet sayfası
+            return redirect(url_for("lugat_sonuc"))
+        yeni_lugat_oturumu("devam")
+        oturum = session["lugat"]
+    kayit = lugat_kaydi(oturum["kartlar"][oturum["sira"]])
+    if kayit is None:  # veri değişmiş olabilir; yeni oturum başlat
+        session.pop("lugat", None)
+        return redirect(url_for("lugat"))
+    return render_template(
+        "lugat.html", kayit=kayit, sira=oturum["sira"] + 1, toplam=len(oturum["kartlar"]),
+        okunus=next((o for o, a in okunuslar(kayit["id"]) if a), ""),
+    )
+
+
+@app.route("/lugat/cevap", methods=["POST"])
+def lugat_cevap():
+    oturum = session.get("lugat")
+    anahtar = request.form.get("anahtar", "")
+    # Yalnızca sıradaki kart cevaplanabilir (eski bir sekmeden gelen çift gönderimi yok say).
+    if not oturum or oturum["sira"] >= len(oturum["kartlar"]) or oturum["kartlar"][oturum["sira"]] != anahtar:
+        return redirect(url_for("lugat"))
+    bildi = request.form.get("bildi") == "1"
+    ilerleme.cevap_kaydet(ilerleme_db(), anahtar, bildi)
+    oturum["sonuc"][anahtar] = bildi
+    oturum["sira"] += 1
+    session["lugat"] = oturum
+    if oturum["sira"] >= len(oturum["kartlar"]):
+        return redirect(url_for("lugat_sonuc"))
+    return redirect(url_for("lugat"))
+
+
+@app.route("/lugat/sonuc")
+def lugat_sonuc():
+    oturum = session.get("lugat")
+    if not oturum or oturum["sira"] < len(oturum["kartlar"]):
+        return redirect(url_for("lugat"))
+    kartlar = []
+    for a in oturum["kartlar"]:
+        k = lugat_kaydi(a)
+        if k is not None:
+            kartlar.append({"kayit": k, "bildi": oturum["sonuc"].get(a, False),
+                            "okunus": a.split("|", 1)[1]})
+    toplam = ilerleme_db().execute(
+        "SELECT COUNT(DISTINCT anahtar) FROM lugat_cevaplari WHERE kullanici IS NULL").fetchone()[0]
+    return render_template("lugat_sonuc.html", kartlar=kartlar, gorulen=toplam)
+
+
+@app.route("/lugat/yeni", methods=["POST"])
+def lugat_yeni():
+    mod = "yeni" if request.form.get("mod") == "yeni" else "devam"
+    yeni_lugat_oturumu(mod)
+    return redirect(url_for("lugat"))
 
 
 @app.route("/harfler")

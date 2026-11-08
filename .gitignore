@@ -16,3 +16,6 @@ data/*.db
 # Ham indirme (büyük; scripts/vikisozluk_indir.py ile yeniden indirilir)
 data/ham/
 data/*.tmp
+
+# Flask instance klasörü: ilerleme.db ve gizli anahtar (kişisel, GitHub'a gitmez)
+instance/
