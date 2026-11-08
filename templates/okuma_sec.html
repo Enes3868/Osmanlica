@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block baslik %}Osmanlıca okuma{% endblock %}
+{% block icerik %}
+<h1>Osmanlıca okuma</h1>
+<p>Neyi çalışmak istersiniz?</p>
+<div class="secenekler">
+  {% for kod, ad in turler.items() %}
+  <a class="secenek" href="{{ url_for('okuma', tur=kod) }}"><strong>{{ ad }}</strong></a>
+  {% endfor %}
+</div>
+{% endblock %}

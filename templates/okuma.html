@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block baslik %}Okuma: {{ tur_adi }}{% endblock %}
+{% block icerik %}
+<p class="kirinti"><a href="{{ url_for('okuma_sec') }}">Osmanlıca okuma</a> › {{ tur_adi }}</p>
+
+<div class="kart buyuk">
+  <div class="osm" lang="ota" dir="rtl">{{ kayit.osmanlica }}</div>
+</div>
+
+{% if sonuc is not defined %}
+<form method="post" class="cevap-formu" autocomplete="off">
+  <input type="hidden" name="kayit_id" value="{{ kayit.id }}">
+  <label for="cevap">Latin harfleriyle yazın:</label>
+  <input id="cevap" name="cevap" type="text" autofocus required spellcheck="false">
+  <button type="submit">Kontrol et</button>
+</form>
+{% else %}
+<div class="sonuc {{ 'dogru' if sonuc.dogru else 'yanlis' }}">
+  {% if sonuc.dogru %}
+    <p class="durum">Doğru!</p>
+    {% if sonuc.yazim_farki %}
+      <p>Yazımı: <strong>{{ sonuc.eslesen }}</strong></p>
+    {% endif %}
+  {% else %}
+    <p class="durum">Yanlış.</p>
+    <p>Sizin cevabınız: <span class="kullanici">{{ cevap or "(boş)" }}</span></p>
+    <p>Doğrusu: <strong>{{ sonuc.asil }}</strong></p>
+  {% endif %}
+
+  {% if sonuc.digerleri %}
+    <p class="not">
+      Bu yazılış için kabul edilen diğer okunuşlar:
+      {% for o in sonuc.digerleri %}<strong>{{ o }}</strong>{{ ", " if not loop.last }}{% endfor %}.
+      Farklı kelimelerse hangisi olduğu cümlenin gidişatından anlaşılır.
+    </p>
+  {% endif %}
+
+  <p class="anlam">Anlamı: {{ kayit.anlam }}</p>
+</div>
+<a class="dugme" href="{{ url_for('okuma', tur=tur, onceki=kayit.id) }}" autofocus>Sonraki kart →</a>
+{% endif %}
+{% endblock %}

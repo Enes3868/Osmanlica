@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h1>Ne çalışmak istersiniz?</h1>
+<div class="secenekler">
+  <a class="secenek" href="{{ url_for('okuma_sec') }}">
+    <span class="osm" lang="ota" dir="rtl">قرائت</span>
+    <strong>Osmanlıca okuma</strong>
+    <span>Kartta yazanı Latin harfleriyle yazın.</span>
+  </a>
+  <a class="secenek" href="{{ url_for('lugat') }}">
+    <span class="osm" lang="ota" dir="rtl">لغت</span>
+    <strong>Lügat</strong>
+    <span>Eski kelimeleri okuyun, karta basıp anlamını görün.</span>
+  </a>
+</div>
+{% endblock %}

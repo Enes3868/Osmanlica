@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block baslik %}Osmanlıca Eğitim{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stil.css') }}">
+</head>
+<body class="yazi-{{ yazi }}">
+  <header class="ust">
+    <a class="logo" href="{{ url_for('ana_sayfa') }}">Osmanlıca Eğitim</a>
+    <nav class="yazi-secici" aria-label="Yazı biçimi">
+      <span>Yazı:</span>
+      <a href="{{ url_for('yazi_sec', tip='matbu', geri=request.full_path) }}"
+         class="{{ 'secili' if yazi == 'matbu' }}">Matbu</a>
+      <a href="{{ url_for('yazi_sec', tip='rika', geri=request.full_path) }}"
+         class="{{ 'secili' if yazi == 'rika' }}">Rik'a</a>
+    </nav>
+  </header>
+  <main>
+    {% block icerik %}{% endblock %}
+  </main>
+</body>
+</html>

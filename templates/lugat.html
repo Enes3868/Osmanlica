@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block baslik %}Lügat{% endblock %}
+{% block icerik %}
+<h1>Lügat</h1>
+<p>Kelimeyi okuyun, anlamını görmek için karta basın.</p>
+<div class="kartlar">
+  {% for k in kartlar %}
+  <details class="kart">
+    <summary>
+      <span class="osm" lang="ota" dir="rtl">{{ k.kayit.osmanlica }}</span>
+      <span class="okunus">{{ k.okunus }}</span>
+    </summary>
+    <p class="anlam">{{ k.kayit.anlam }}</p>
+  </details>
+  {% endfor %}
+</div>
+<a class="dugme" href="{{ url_for('lugat') }}">Yeni kartlar →</a>
+{% endblock %}

@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Uygulamanın ilk açılışta oluşturduğu veritabanı (data/ornek_veri.sql dosyasından üretilir)
+data/*.db
+
+# Gizli ayarlar (Google anahtarı vb. — ileride)
+.env
+
+# VibeWise öğrenme notları (kişisel)
+.vibe-wise/

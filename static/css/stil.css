@@ -1,0 +1,111 @@
+/* Yazı tipleri proje içinde durur; internet gerekmez. Lisans: SIL OFL 1.1 (static/fonts/) */
+@font-face {
+  font-family: "Amiri";
+  src: url("../fonts/Amiri-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aref Ruqaa";
+  src: url("../fonts/ArefRuqaa-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --zemin: #f6f1e7;
+  --kart: #fffdf8;
+  --metin: #2b2620;
+  --soluk: #6f665b;
+  --vurgu: #7a3b1d;
+  --cizgi: #e2d8c6;
+  --dogru: #2f6b3a;
+  --dogru-zemin: #e6f2e6;
+  --yanlis: #9a2f22;
+  --yanlis-zemin: #f8e5e1;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--zemin);
+  color: var(--metin);
+  font-family: system-ui, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 1.6rem; margin: 8px 0 16px; }
+a { color: var(--vurgu); }
+
+.ust {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; flex-wrap: wrap;
+  padding: 12px 16px; border-bottom: 1px solid var(--cizgi); background: var(--kart);
+}
+.logo { font-weight: 700; text-decoration: none; color: var(--metin); }
+.yazi-secici { display: flex; gap: 6px; align-items: center; font-size: .9rem; color: var(--soluk); }
+.yazi-secici a {
+  padding: 4px 10px; border: 1px solid var(--cizgi); border-radius: 999px;
+  text-decoration: none; color: var(--metin);
+}
+.yazi-secici a.secili { background: var(--vurgu); border-color: var(--vurgu); color: #fff; }
+
+/* Osmanlıca metin: seçilen yazı tipine göre */
+.osm { font-family: "Amiri", serif; direction: rtl; unicode-bidi: isolate; }
+.yazi-rika .osm { font-family: "Aref Ruqaa", "Amiri", serif; }
+
+.secenekler { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.secenek {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 20px; background: var(--kart); border: 1px solid var(--cizgi); border-radius: 12px;
+  text-decoration: none; color: var(--metin);
+}
+.secenek:hover { border-color: var(--vurgu); }
+.secenek .osm { font-size: 2.2rem; color: var(--vurgu); }
+.secenek span:last-child { color: var(--soluk); font-size: .95rem; }
+
+.kirinti { color: var(--soluk); font-size: .9rem; }
+
+.kart {
+  background: var(--kart); border: 1px solid var(--cizgi); border-radius: 12px;
+  padding: 20px; text-align: center;
+}
+.kart.buyuk { padding: 40px 20px; margin-bottom: 20px; }
+.kart.buyuk .osm { font-size: clamp(2.4rem, 9vw, 4rem); line-height: 1.8; }
+
+.cevap-formu { display: flex; flex-direction: column; gap: 8px; }
+.cevap-formu input {
+  font-size: 1.2rem; padding: 10px 12px; border: 1px solid var(--cizgi); border-radius: 8px;
+}
+button, .dugme {
+  display: inline-block; margin-top: 8px; padding: 10px 18px; border: 0; border-radius: 8px;
+  background: var(--vurgu); color: #fff; font-size: 1rem; text-decoration: none; cursor: pointer;
+}
+
+.sonuc { padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; }
+.sonuc p { margin: 6px 0; }
+.sonuc .durum { font-size: 1.3rem; font-weight: 700; }
+.sonuc.dogru { background: var(--dogru-zemin); }
+.sonuc.dogru .durum { color: var(--dogru); }
+.sonuc.yanlis { background: var(--yanlis-zemin); }
+.sonuc.yanlis .durum { color: var(--yanlis); }
+.sonuc .kullanici { text-decoration: line-through; }
+.sonuc .not, .sonuc .anlam { color: var(--soluk); }
+
+.kartlar { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
+.kartlar details.kart { cursor: pointer; }
+.kartlar summary { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.kartlar summary::-webkit-details-marker { display: none; }
+.kartlar .osm { font-size: 2.2rem; line-height: 1.8; }
+.kartlar .okunus { color: var(--soluk); }
+.kartlar details[open] { border-color: var(--vurgu); }
+.kartlar .anlam { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--cizgi); }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --zemin: #1d1a16; --kart: #27231e; --metin: #efe7da; --soluk: #b3a896;
+    --vurgu: #e0a070; --cizgi: #3d362e;
+    --dogru: #8fd19a; --dogru-zemin: #22352a; --yanlis: #f0a090; --yanlis-zemin: #3d2622;
+  }
+  .yazi-secici a.secili, button, .dugme { color: #1d1a16; }
+}
