@@ -21,8 +21,12 @@ Site modu **ortam değişkenleriyle** açılır. Google anahtarları ve gizli an
    - Kullanıcı türü: **External**.
    - Uygulama adı (ör. "Osmanlıca Eğitim"), destek e-postası ve geliştirici e-postası: kendi adresiniz.
    - Kapsamlar (scopes): `openid`, `email`, `profile` yeterlidir (bunlar "hassas" değildir).
-   - **Test users** bölümüne giriş yapacak kişilerin Gmail adreslerini ekleyin. Uygulama "Testing" durumunda
-     kaldıkça yalnızca bu kişiler girebilir (en çok 100 kişi) — aile ve arkadaşlar için yeterli ve güvenli.
+   - **Yayın durumu (Publishing status):** Uygulama ilk oluşturulduğunda "Testing" durumundadır ve o hâlde
+     yalnızca "Test users" listesindeki adresler girebilir. **Herkesin girebilmesi için "Publish app"
+     (Audience → Publish app) ile durumu "In production" yapın.** Yalnızca bu üç temel kapsamı
+     kullandığınız için Google'ın uygulama incelemesi (verification) gerekmez.
+   - Girişi yine de sınırlamak isterseniz iki yol vardır: uygulamayı "Testing"de bırakıp "Test users"a
+     adres eklemek ya da aşağıdaki `IZINLI_EPOSTALAR` değişkenini doldurmak.
 3. **APIs & Services → Credentials → Create credentials → OAuth client ID**:
    - Uygulama türü: **Web application**.
    - **Authorized redirect URIs**: `https://HESAP.alwaysdata.net/giris/donus`
@@ -70,7 +74,7 @@ Ortam değişkenleri (her biri ayrı satır, `AD=değer`):
 | `GOOGLE_CLIENT_ID` | 1. adımdaki Client ID |
 | `GOOGLE_CLIENT_SECRET` | 1. adımdaki Client secret |
 | `GIZLI_ANAHTAR` | 2a'da ürettiğiniz uzun rastgele metin |
-| `IZINLI_EPOSTALAR` | (isteğe bağlı) `anne@gmail.com,ali@gmail.com` — boşsa her Google hesabı girebilir |
+| `IZINLI_EPOSTALAR` | **Herkes girebilsin istiyorsanız bu değişkeni hiç eklemeyin.** Sınırlamak isterseniz: `anne@gmail.com,ali@gmail.com` |
 
 Sitenin **SSL / HTTPS** ayarında "Force HTTPS" (HTTPS'e yönlendir) açık olsun. Kaydedip siteyi yeniden başlatın.
 
