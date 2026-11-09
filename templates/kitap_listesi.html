@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block baslik %}Kitap tercüme{% endblock %}
+{% block icerik %}
+<h1>Kitap tercüme</h1>
+<p>Bir kitap seçin. Sayfalar satır satır gelir; her satırı Latin harfleriyle yazın, uygulama kelime kelime karşılaştırsın.</p>
+<div class="secenekler">
+  {% for k in kitaplar %}
+  <a class="secenek" href="{{ url_for('kitap_sayfalari', kod=k.kod) }}">
+    <strong>{{ k.ad }}</strong>
+    <span>{{ k.yazar }} · {{ k.baski }}</span>
+    <span>{{ k.hazir }} / {{ k.toplam }} sayfa hazır</span>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

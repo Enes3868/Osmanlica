@@ -2,6 +2,7 @@
 
 Osmanlıca okuma pratiği ve eski Türkçe lügat çalışmak için kart tabanlı bir uygulama.
 
+- **Kitap tercüme:** Abdurrahman Şeref'in *Fezleke-i Tarih-i Devlet-i Osmaniye* (1897-98) kitabının sayfaları satır satır gelir; her satırı Latin harfleriyle yazarsınız, uygulama kelime kelime karşılaştırır (yanlış, eksik, fazla). Sayfa sonunda doğru metin ve sizin metniniz karşılaştırmalı gösterilir; bitirilen sayfalar işaretlenir, istenirse tekrar yapılır. **Doğru metinler yapay zekâ (Claude) okumasıdır ve kontrol edilmemiştir** (`data/kitaplar/fezleke/metin/`).
 - **Osmanlıca okuma:** Kartta Arap harfleriyle yazılmış kelimeyi ya da ifadeyi okuyup Latin harfleriyle yazın. Uygulama doğru/yanlış olduğunu söyler, doğru okunuşu, diğer yazımları ve aynı yazılışla okunabilen başka kelimeleri gösterir.
 - **Lügat:** Kartlar birer birer gelir; karta dokununca anlam açılır, "Biliyorum / Bilmiyorum" ile cevaplarsınız. 5 kartlık oturumlardan sonra bilmedikleriniz tekrar gelir, bildikleriniz arada tekrarlanır. Halk dili ve tarih metinlerindeki edebi dil (Arapça/Farsça kökenli kelimeler) karışık gelir. İlerlemeniz `instance/ilerleme.db` dosyasında saklanır ve hiç silinmez.
 - **Rik'a harfler:** Bütün harflerin rik'a ile başta, ortada ve sonda yazılışları.
@@ -23,6 +24,10 @@ python scripts/veritabani_olustur.py # → data/vikisozluk.sql
 ```
 
 Uygulama `data/vikisozluk.sql` değiştiğinde veritabanını kendiliğinden yeniden oluşturur.
+
+### Kitap verisi
+
+`data/kitaplar/fezleke/`: sayfa resimleri (Internet Archive taramasından, kamu malı), otomatik bulunan satır sınırları (`satirlar.json`) ve Latin harfli metinler (`metin/sNNN.txt`, biçimi `metin/OKU-BENI.md`'de). Resimleri ve satırları yeniden üretmek için (isteğe bağlı) `pip install pymupdf numpy pillow` ve `python scripts/fezleke_satirlar.py <pdf>`.
 
 ## Bilgisayarınızda çalıştırma
 

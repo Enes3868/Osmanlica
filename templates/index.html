@@ -2,6 +2,11 @@
 {% block icerik %}
 <h1>Ne çalışmak istersiniz?</h1>
 <div class="secenekler">
+  <a class="secenek" href="{{ url_for('kitap_listesi') }}">
+    <span class="osm" lang="ota" dir="rtl">کتاب</span>
+    <strong>Kitap tercüme</strong>
+    <span>Gerçek bir kitabın sayfalarını satır satır Latin harfleriyle yazın.</span>
+  </a>
   <a class="secenek" href="{{ url_for('okuma_sec') }}">
     <span class="osm" lang="ota" dir="rtl">قرائت</span>
     <strong>Osmanlıca okuma</strong>

@@ -1,0 +1,30 @@
+{# Kelime kelime karşılaştırma gösterimi (karsilastir.Karsilastirma). #}
+{% macro dogru_metin(k) -%}
+<p class="kk-satir kk-dogru-metin">
+  {%- for w in k.dogru_metin %}<span class="kk kk-{{ w.durum }}">{{ w.metin }}</span> {% endfor -%}
+</p>
+{%- endmacro %}
+
+{% macro cevap_metin(k) -%}
+<p class="kk-satir kk-cevap-metin">
+  {%- for w in k.cevap_metin -%}
+    {%- if w.durum == 'eksik' -%}
+      <span class="kk kk-eksik" title="Eksik: {{ w.beklenen }}">⁁</span>
+    {%- elif w.durum == 'yanlis' -%}
+      <span class="kk kk-yanlis" title="Doğrusu: {{ w.beklenen }}">{{ w.metin }}</span>
+    {%- elif w.durum == 'fazla' -%}
+      <span class="kk kk-fazla" title="Fazla kelime">{{ w.metin }}</span>
+    {%- else -%}
+      <span class="kk kk-dogru">{{ w.metin }}</span>
+    {%- endif %} {% endfor -%}
+  {%- if not k.cevap_metin %}<span class="kk kk-bos">(boş)</span>{% endif -%}
+</p>
+{%- endmacro %}
+
+{% macro aciklama() -%}
+<p class="kk-aciklama">
+  <span class="kk kk-yanlis">kırmızı</span> yanlış ·
+  <span class="kk kk-fazla">üstü çizili</span> fazla ·
+  <span class="kk kk-eksik">⁁</span> eksik kelime (üzerine gelince doğrusu görünür)
+</p>
+{%- endmacro %}

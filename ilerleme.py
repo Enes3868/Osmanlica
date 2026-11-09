@@ -26,7 +26,82 @@ CREATE TABLE IF NOT EXISTS lugat_cevaplari (
     zaman      TEXT NOT NULL        -- UTC, ISO 8601
 );
 CREATE INDEX IF NOT EXISTS lugat_cevaplari_anahtar ON lugat_cevaplari(kullanici, anahtar);
+
+-- Kitap tercüme: her sayfa çalışması bir "deneme"dir; satır cevapları denemeye bağlıdır.
+CREATE TABLE IF NOT EXISTS kitap_denemeleri (
+    id         INTEGER PRIMARY KEY,
+    kullanici  TEXT,
+    kitap      TEXT NOT NULL,
+    sayfa      INTEGER NOT NULL,     -- PDF sayfa numarası
+    basladi    TEXT NOT NULL,
+    bitti      TEXT,                 -- NULL: devam ediyor
+    dogru      INTEGER,              -- bitince: doğru kelime sayısı
+    toplam     INTEGER               -- bitince: doğru metindeki kelime sayısı
+);
+CREATE TABLE IF NOT EXISTS kitap_satir_cevaplari (
+    id         INTEGER PRIMARY KEY,
+    deneme_id  INTEGER NOT NULL REFERENCES kitap_denemeleri(id),
+    satir      INTEGER NOT NULL,     -- 1'den başlar
+    cevap      TEXT NOT NULL,
+    zaman      TEXT NOT NULL,
+    UNIQUE (deneme_id, satir)
+);
 """
+
+
+def _simdi() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def acik_deneme(b, kitap: str, sayfa: int, kullanici: str | None = None):
+    return b.execute(
+        """SELECT * FROM kitap_denemeleri WHERE kullanici IS ? AND kitap = ? AND sayfa = ? AND bitti IS NULL
+           ORDER BY id DESC LIMIT 1""", (kullanici, kitap, sayfa)).fetchone()
+
+
+def deneme_baslat(b, kitap: str, sayfa: int, kullanici: str | None = None) -> int:
+    imlec = b.execute("INSERT INTO kitap_denemeleri (kullanici, kitap, sayfa, basladi) VALUES (?, ?, ?, ?)",
+                      (kullanici, kitap, sayfa, _simdi()))
+    b.commit()
+    return imlec.lastrowid
+
+
+def satir_cevaplari(b, deneme_id: int) -> dict[int, str]:
+    return {s["satir"]: s["cevap"] for s in
+            b.execute("SELECT satir, cevap FROM kitap_satir_cevaplari WHERE deneme_id = ?", (deneme_id,))}
+
+
+def satir_kaydet(b, deneme_id: int, satir: int, cevap: str) -> None:
+    b.execute("INSERT INTO kitap_satir_cevaplari (deneme_id, satir, cevap, zaman) VALUES (?, ?, ?, ?)",
+              (deneme_id, satir, cevap, _simdi()))
+    b.commit()
+
+
+def deneme_bitir(b, deneme_id: int, dogru: int, toplam: int) -> None:
+    b.execute("UPDATE kitap_denemeleri SET bitti = ?, dogru = ?, toplam = ? WHERE id = ? AND bitti IS NULL",
+              (_simdi(), dogru, toplam, deneme_id))
+    b.commit()
+
+
+def son_bitmis_deneme(b, kitap: str, sayfa: int, kullanici: str | None = None):
+    return b.execute(
+        """SELECT * FROM kitap_denemeleri WHERE kullanici IS ? AND kitap = ? AND sayfa = ? AND bitti IS NOT NULL
+           ORDER BY id DESC LIMIT 1""", (kullanici, kitap, sayfa)).fetchone()
+
+
+def sayfa_durumlari(b, kitap: str, kullanici: str | None = None) -> dict[int, dict]:
+    """sayfa → {"bitti": kaç kez bitirildi, "en_iyi": en iyi yüzde, "devam": açık deneme var mı}"""
+    sonuc: dict[int, dict] = {}
+    for s in b.execute("SELECT sayfa, bitti, dogru, toplam FROM kitap_denemeleri WHERE kullanici IS ? AND kitap = ?",
+                       (kullanici, kitap)):
+        d = sonuc.setdefault(s["sayfa"], {"bitti": 0, "en_iyi": None, "devam": False})
+        if s["bitti"]:
+            d["bitti"] += 1
+            yuzde = round(100 * s["dogru"] / s["toplam"]) if s["toplam"] else 100
+            d["en_iyi"] = max(d["en_iyi"] or 0, yuzde)
+        else:
+            d["devam"] = True
+    return sonuc
 
 
 def baglan(yol: Path) -> sqlite3.Connection:

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "_karsilastirma.html" as kk %}
+{% block baslik %}{{ kitap.ad }} · Sayfa {{ no }}{% endblock %}
+{% block icerik %}
+<p class="kirinti">
+  <a href="{{ url_for('kitap_listesi') }}">Kitap tercüme</a> ›
+  <a href="{{ url_for('kitap_sayfalari', kod=kod) }}">{{ kitap.ad }}</a> › Sayfa {{ no }}
+</p>
+
+<div class="lugat-ust">
+  <div class="ilerleme-cubugu" aria-label="Satır {{ satir.no }} / {{ toplam }}">
+    <span>Satır {{ satir.no }}</span>
+    <span class="cizgi"><span style="width: {{ ((satir.no - (0 if sonuc is defined else 1)) / toplam * 100) | round }}%"></span></span>
+    <span>{{ toplam }}</span>
+  </div>
+</div>
+
+{# Satır, sayfa resminden CSS ile kesilir: kutu pencerenin oranında, resim yukarı kaydırılır;
+   çalışılan satır vurgulanır, üstü ve altı soluk görünür. #}
+<div class="satir-resmi" style="aspect-ratio: {{ '%.4f' % oran }}">
+  <img src="{{ resim }}" alt="Sayfa {{ no }}, satır {{ satir.no }}" style="top: -{{ '%.3f' % ust }}%">
+  <span class="satir-vurgu" style="top: {{ '%.3f' % vurgu_ust }}%; height: {{ '%.3f' % vurgu_boy }}%"></span>
+</div>
+<p class="not"><a href="{{ resim }}" target="_blank" rel="noopener">Sayfanın tamamını aç</a></p>
+
+{% if sonuc is not defined %}
+<form method="post" action="{{ url_for('kitap_cevap', kod=kod, sayfa=sayfa) }}" class="cevap-formu" autocomplete="off">
+  <input type="hidden" name="satir" value="{{ satir.no }}">
+  <label for="cevap">Bu satırı Latin harfleriyle yazın:</label>
+  <textarea id="cevap" name="cevap" rows="2" autofocus spellcheck="false"></textarea>
+  <button type="submit">Kontrol et</button>
+</form>
+<p class="not">Kelimeleri bilmiyorsanız boş bırakıp geçebilirsiniz. Tamlamaları "devlet-i aliyye" ya da
+  "devleti aliyye" diye yazabilirsiniz; şapka ve noktalama önemsizdir.</p>
+{% else %}
+<div class="kk-kutu">
+  <p class="kk-baslik">Sizin yazdığınız <span class="kk-puan">{{ sonuc.dogru_sayisi }} / {{ sonuc.toplam }} kelime doğru</span></p>
+  {{ kk.cevap_metin(sonuc) }}
+  <p class="kk-baslik">Doğrusu</p>
+  {{ kk.dogru_metin(sonuc) }}
+  {{ kk.aciklama() }}
+</div>
+<a class="dugme" href="{{ url_for('kitap_calis', kod=kod, sayfa=sayfa) }}" autofocus>
+  {{ 'Sayfa değerlendirmesi →' if son else 'Sonraki satır →' }}</a>
+{% endif %}
+{% endblock %}

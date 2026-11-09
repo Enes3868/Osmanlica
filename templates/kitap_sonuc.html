@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "_karsilastirma.html" as kk %}
+{% block baslik %}{{ kitap.ad }} · Sayfa {{ no }} değerlendirme{% endblock %}
+{% block icerik %}
+<p class="kirinti">
+  <a href="{{ url_for('kitap_listesi') }}">Kitap tercüme</a> ›
+  <a href="{{ url_for('kitap_sayfalari', kod=kod) }}">{{ kitap.ad }}</a> › Sayfa {{ no }}
+</p>
+<h1>Sayfa {{ no }} tamamlandı ✓</h1>
+<p class="ozet"><strong>%{{ yuzde }}</strong> · {{ deneme.dogru }} / {{ deneme.toplam }} kelime doğru</p>
+
+<h2 class="ara-baslik">Doğru metin</h2>
+<div class="kk-kutu">
+  {% for s in satirlar %}{{ kk.dogru_metin(s.sonuc) }}{% endfor %}
+</div>
+
+<h2 class="ara-baslik">Sizin metniniz</h2>
+<div class="kk-kutu">
+  {% for s in satirlar %}{{ kk.cevap_metin(s.sonuc) }}{% endfor %}
+  {{ kk.aciklama() }}
+</div>
+
+<div class="sonuc-dugmeleri">
+  <form method="post" action="{{ url_for('kitap_yeniden', kod=kod, sayfa=sayfa) }}">
+    <button type="submit" class="dugme ikincil">Bu sayfayı tekrar yap</button>
+  </form>
+  {% if sonraki %}
+  <a class="dugme" href="{{ url_for('kitap_calis', kod=kod, sayfa=sonraki) }}">Sonraki sayfa ({{ sonraki_no }}) →</a>
+  {% endif %}
+  <a class="dugme ikincil" href="{{ url_for('kitap_sayfalari', kod=kod) }}">Sayfa listesi</a>
+</div>
+<p class="uyari">{{ kitap.metin_notu }}</p>
+{% endblock %}

@@ -176,6 +176,49 @@ button, .dugme {
 .sonuc-dugmeleri { display: flex; gap: 12px; flex-wrap: wrap; }
 .dugme.ikincil { background: transparent; color: var(--vurgu); border: 1px solid var(--vurgu); }
 
+/* ---------- Kitap tercüme ---------- */
+.uyari {
+  font-size: .85rem; color: var(--soluk); border-left: 3px solid var(--vurgu);
+  padding: 6px 10px; background: var(--kart); border-radius: 4px;
+}
+.sayfa-izgarasi { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; margin: 16px 0; }
+.sayfa-kutusu {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 56px; padding: 6px; border: 1px solid var(--cizgi); border-radius: 8px;
+  background: var(--kart); color: var(--metin); text-decoration: none; font-size: .95rem;
+}
+.sayfa-kutusu span { font-size: .7rem; color: var(--soluk); }
+.sayfa-kutusu:hover { border-color: var(--vurgu); }
+.sayfa-kutusu.bitti { background: var(--dogru-zemin); border-color: var(--dogru); }
+.sayfa-kutusu.bitti span { color: var(--dogru); }
+.sayfa-kutusu.devam { border-color: var(--vurgu); border-style: dashed; }
+
+.satir-resmi {
+  position: relative; overflow: hidden; width: 100%; margin: 0 0 16px;
+  border: 1px solid var(--cizgi); border-radius: 8px; background: #fff;
+}
+.satir-resmi img { position: absolute; left: 0; width: 100%; height: auto; }
+.satir-vurgu {
+  position: absolute; left: 0; right: 0; pointer-events: none;
+  outline: 2px solid var(--vurgu); box-shadow: 0 0 0 999px rgb(255 255 255 / .55);
+}
+.cevap-formu textarea {
+  font: inherit; font-size: 1.15rem; padding: 10px 12px; border: 1px solid var(--cizgi);
+  border-radius: 8px; resize: vertical; background: var(--kart); color: var(--metin);
+}
+
+.kk-kutu { background: var(--kart); border: 1px solid var(--cizgi); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; }
+.kk-baslik { margin: 6px 0 2px; font-size: .8rem; color: var(--soluk); text-transform: uppercase; letter-spacing: .04em; }
+.kk-puan { float: right; text-transform: none; letter-spacing: 0; }
+.kk-satir { margin: 4px 0 10px; font-size: 1.1rem; line-height: 1.7; }
+.kk-yanlis { color: var(--yanlis); background: var(--yanlis-zemin); border-radius: 3px; padding: 0 2px; }
+.kk-fazla { color: var(--yanlis); text-decoration: line-through; }
+.kk-eksik { color: var(--yanlis); font-weight: 700; cursor: help; }
+.kk-dogru-metin .kk-yanlis, .kk-dogru-metin .kk-eksik { color: var(--metin); background: none; font-weight: 700; text-decoration: underline dotted var(--yanlis); }
+.kk-bos { color: var(--soluk); }
+.kk-aciklama { font-size: .75rem; color: var(--soluk); margin: 4px 0 0; }
+.ara-baslik { font-size: 1rem; margin: 18px 0 6px; }
+
 /* Rik'a harfler tablosu: rik'a sütunları seçili yazı biçiminden bağımsız olarak hep rik'a */
 .rika-sabit, .harf-tablosu .rika { font-family: "Aref Ruqaa", "Amiri", serif; }
 .tablo-kap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--cizgi); border-radius: 12px; }

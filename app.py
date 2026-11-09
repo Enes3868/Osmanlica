@@ -7,11 +7,14 @@ import secrets
 import sqlite3
 import threading
 
-from flask import Flask, abort, g, make_response, redirect, render_template, request, session, url_for
+from flask import (Flask, abort, g, make_response, redirect, render_template, request, send_from_directory,
+                   session, url_for)
 
 from checker import kontrol_et
 from harfler import HARFLER, LAMELIF
 import ilerleme
+from karsilastir import karsilastir
+import kitap as kitaplar
 
 KOK = Path(__file__).resolve().parent
 VERI = KOK / "data"
@@ -273,6 +276,135 @@ def lugat_yeni():
     mod = "yeni" if request.form.get("mod") == "yeni" else "devam"
     yeni_lugat_oturumu(mod)
     return redirect(url_for("lugat"))
+
+
+# ---------- Kitap tercüme: sayfalar satır satır ----------
+
+def kitap_veya_404(kod: str) -> dict:
+    bilgi = kitaplar.kitap_bilgisi(kod)
+    if bilgi is None:
+        abort(404)
+    return bilgi
+
+
+def sayfa_veya_404(kod: str, sayfa: int):
+    satirlar = kitaplar.sayfa_satirlari(kod, sayfa)
+    if not satirlar:
+        abort(404)
+    return satirlar
+
+
+@app.route("/kitap")
+def kitap_listesi():
+    return render_template("kitap_listesi.html", kitaplar=[
+        dict(k, hazir=len(kitaplar.hazir_sayfalar(k["kod"])), toplam=len(kitaplar.tum_sayfalar(k["kod"])))
+        for k in kitaplar.kitaplar()])
+
+
+@app.route("/kitap/<kod>")
+def kitap_sayfalari(kod):
+    bilgi = kitap_veya_404(kod)
+    durumlar = ilerleme.sayfa_durumlari(ilerleme_db(), kod)
+    sayfalar = [{"pdf": n, "no": kitaplar.gorunen_no(kod, n), "durum": durumlar.get(n)}
+                for n in kitaplar.hazir_sayfalar(kod)]
+    return render_template("kitap_sayfalari.html", kitap=bilgi, kod=kod, sayfalar=sayfalar,
+                           toplam=len(kitaplar.tum_sayfalar(kod)))
+
+
+@app.route("/kitap/<kod>/resim/<int:sayfa>.jpg")
+def kitap_resmi(kod, sayfa):
+    kitap_veya_404(kod)
+    return send_from_directory(kitaplar.KITAPLAR_KLASORU / kod / "sayfalar", f"s{sayfa:03d}.jpg",
+                               max_age=60 * 60 * 24)
+
+
+def satir_gorunumu(kod, sayfa, satir):
+    """Satırı, üstünde ve altında biraz bağlamla gösteren pencere (oranlar CSS için yüzde).
+
+    Otomatik bulunan satır sınırları her zaman kusursuz değil; pencere biraz geniş tutulur ve
+    asıl satır vurgulanır, böylece sınır kaysa da satırın tamamı görünür."""
+    genislik, yukseklik = kitaplar.sayfa_boyutu(kod, sayfa)
+    boy = satir.y1 - satir.y0
+    p0, p1 = max(0.0, satir.y0 - boy * 0.9), min(1.0, satir.y1 + boy * 0.9)
+    pencere = p1 - p0
+    return {"satir": satir, "resim": url_for("kitap_resmi", kod=kod, sayfa=sayfa),
+            "oran": genislik / (pencere * yukseklik),
+            "ust": p0 / pencere * 100,
+            "vurgu_ust": (satir.y0 - p0) / pencere * 100,
+            "vurgu_boy": boy / pencere * 100}
+
+
+@app.route("/kitap/<kod>/<int:sayfa>")
+def kitap_calis(kod, sayfa):
+    bilgi = kitap_veya_404(kod)
+    satirlar = sayfa_veya_404(kod, sayfa)
+    b = ilerleme_db()
+    deneme = ilerleme.acik_deneme(b, kod, sayfa)
+    if deneme is None:
+        if ilerleme.son_bitmis_deneme(b, kod, sayfa):
+            return redirect(url_for("kitap_sonuc", kod=kod, sayfa=sayfa))
+        deneme_id = ilerleme.deneme_baslat(b, kod, sayfa)
+    else:
+        deneme_id = deneme["id"]
+    cevaplar = ilerleme.satir_cevaplari(b, deneme_id)
+    sira = next((s for s in satirlar if s.no not in cevaplar), None)
+    if sira is None:  # bütün satırlar cevaplandı: sayfayı bitir
+        sonuclar = [karsilastir(s.metin, cevaplar[s.no]) for s in satirlar]
+        ilerleme.deneme_bitir(b, deneme_id, sum(k.dogru_sayisi for k in sonuclar), sum(k.toplam for k in sonuclar))
+        return redirect(url_for("kitap_sonuc", kod=kod, sayfa=sayfa))
+    return render_template("kitap_satir.html", kitap=bilgi, kod=kod, sayfa=sayfa,
+                           no=kitaplar.gorunen_no(kod, sayfa), toplam=len(satirlar),
+                           **satir_gorunumu(kod, sayfa, sira))
+
+
+@app.route("/kitap/<kod>/<int:sayfa>/cevap", methods=["POST"])
+def kitap_cevap(kod, sayfa):
+    bilgi = kitap_veya_404(kod)
+    satirlar = sayfa_veya_404(kod, sayfa)
+    b = ilerleme_db()
+    deneme = ilerleme.acik_deneme(b, kod, sayfa)
+    no = request.form.get("satir", type=int)
+    if deneme is None or no is None or not 1 <= no <= len(satirlar):
+        return redirect(url_for("kitap_calis", kod=kod, sayfa=sayfa))
+    cevaplar = ilerleme.satir_cevaplari(b, deneme["id"])
+    beklenen = next((s.no for s in satirlar if s.no not in cevaplar), None)
+    if no != beklenen:  # sayfa yenilendi ya da eski form: yalnızca sıradaki satır kaydedilir
+        return redirect(url_for("kitap_calis", kod=kod, sayfa=sayfa))
+    cevap = request.form.get("cevap", "").strip()
+    ilerleme.satir_kaydet(b, deneme["id"], no, cevap)
+    satir = satirlar[no - 1]
+    return render_template("kitap_satir.html", kitap=bilgi, kod=kod, sayfa=sayfa,
+                           no=kitaplar.gorunen_no(kod, sayfa), toplam=len(satirlar),
+                           cevap=cevap, sonuc=karsilastir(satir.metin, cevap), son=(no == len(satirlar)),
+                           **satir_gorunumu(kod, sayfa, satir))
+
+
+@app.route("/kitap/<kod>/<int:sayfa>/sonuc")
+def kitap_sonuc(kod, sayfa):
+    bilgi = kitap_veya_404(kod)
+    satirlar = sayfa_veya_404(kod, sayfa)
+    b = ilerleme_db()
+    deneme = ilerleme.son_bitmis_deneme(b, kod, sayfa)
+    if deneme is None:
+        return redirect(url_for("kitap_calis", kod=kod, sayfa=sayfa))
+    cevaplar = ilerleme.satir_cevaplari(b, deneme["id"])
+    satir_sonuclari = [{"satir": s, "sonuc": karsilastir(s.metin, cevaplar.get(s.no, ""))} for s in satirlar]
+    hazir = kitaplar.hazir_sayfalar(kod)
+    sonraki = next((n for n in hazir if n > sayfa), None)
+    return render_template("kitap_sonuc.html", kitap=bilgi, kod=kod, sayfa=sayfa, deneme=deneme,
+                           no=kitaplar.gorunen_no(kod, sayfa), satirlar=satir_sonuclari, sonraki=sonraki,
+                           sonraki_no=kitaplar.gorunen_no(kod, sonraki) if sonraki else None,
+                           yuzde=round(100 * deneme["dogru"] / deneme["toplam"]) if deneme["toplam"] else 100)
+
+
+@app.route("/kitap/<kod>/<int:sayfa>/yeniden", methods=["POST"])
+def kitap_yeniden(kod, sayfa):
+    kitap_veya_404(kod)
+    sayfa_veya_404(kod, sayfa)
+    b = ilerleme_db()
+    if ilerleme.acik_deneme(b, kod, sayfa) is None:
+        ilerleme.deneme_baslat(b, kod, sayfa)
+    return redirect(url_for("kitap_calis", kod=kod, sayfa=sayfa))
 
 
 @app.route("/harfler")

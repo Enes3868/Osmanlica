@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block baslik %}{{ kitap.ad }}{% endblock %}
+{% block icerik %}
+<p class="kirinti"><a href="{{ url_for('kitap_listesi') }}">Kitap tercüme</a> › {{ kitap.ad }}</p>
+<h1>{{ kitap.ad }}</h1>
+<p class="not">{{ kitap.yazar }} · {{ kitap.baski }} · <a href="{{ kitap.kaynak }}" rel="noopener">Tarama</a></p>
+<p class="uyari">{{ kitap.metin_notu }}</p>
+
+<p>Çalışmak istediğiniz sayfayı seçin. {{ sayfalar | length }} / {{ toplam }} sayfa hazır.</p>
+<div class="sayfa-izgarasi">
+  {% for s in sayfalar %}
+  <a class="sayfa-kutusu {% if s.durum and s.durum.bitti %}bitti{% elif s.durum and s.durum.devam %}devam{% endif %}"
+     href="{{ url_for('kitap_calis', kod=kod, sayfa=s.pdf) }}">
+    <strong>{{ s.no }}</strong>
+    {% if s.durum and s.durum.bitti %}
+      <span>✓ %{{ s.durum.en_iyi }}</span>
+    {% elif s.durum and s.durum.devam %}
+      <span>devam ediyor</span>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}
