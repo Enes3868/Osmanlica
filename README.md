@@ -55,6 +55,10 @@ python3 -m venv .venv
 
 Sonra tarayıcıda <http://127.0.0.1:5000> adresini açın.
 
+## Sitede yayınlama
+
+Uygulama sunucuda **site modunda** çalışır: kullanıcılar Google hesabıyla giriş yapar ve herkesin ilerlemesi ayrı tutulur (Lügat ve Kitap tercüme giriş ister; diğer bölümler herkese açık). Kurulum adımları: [YAYIN.md](YAYIN.md).
+
 ## Testler
 
 ```sh

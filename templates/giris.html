@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block baslik %}Giriş{% endblock %}
+{% block icerik %}
+<h1>Giriş yapın</h1>
+<p>Lügat ve kitap tercüme ilerlemenizin kaydedilmesi için Google hesabınızla giriş yapın.
+  Her kullanıcının ilerlemesi ayrı tutulur.</p>
+
+{% if hata == 'izinsiz' %}
+  <p class="uyari">Bu Google hesabının girişine izin verilmemiş. Site sahibinden izin isteyin.</p>
+{% elif hata == 'dogrulanmamis' %}
+  <p class="uyari">Google bu hesabın e-posta adresini doğrulanmış olarak bildirmedi.</p>
+{% elif hata %}
+  <p class="uyari">Giriş tamamlanamadı. Lütfen tekrar deneyin.</p>
+{% endif %}
+
+<a class="dugme" href="{{ url_for('giris.google', sonra=sonra) }}">Google ile giriş yap</a>
+<p class="not">Yalnızca adınız, e-posta adresiniz ve Google'ın hesabınıza verdiği kimlik numarası kullanılır;
+  şifreniz bu siteye gelmez.</p>
+{% endblock %}

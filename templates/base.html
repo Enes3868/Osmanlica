@@ -16,6 +16,16 @@
       <a href="{{ url_for('yazi_sec', tip='rika', geri=request.full_path) }}"
          class="{{ 'secili' if yazi == 'rika' }}">Rik'a</a>
     </nav>
+    {% if site_modu %}
+    <div class="hesap">
+      {% if giris_yapan %}
+        <span>{{ giris_yapan.ad }}</span>
+        <form method="post" action="{{ url_for('giris.cikis') }}"><button type="submit" class="metin-dugme">Çıkış</button></form>
+      {% else %}
+        <a href="{{ url_for('giris.giris', sonra=request.full_path) }}">Giriş yap</a>
+      {% endif %}
+    </div>
+    {% endif %}
   </header>
   <main>
     {% block icerik %}{% endblock %}

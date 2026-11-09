@@ -11,6 +11,8 @@ from flask import (Flask, abort, g, make_response, redirect, render_template, re
                    session, url_for)
 
 from checker import kontrol_et
+import giris
+from giris import aktif_kullanici, giris_gerekli
 from harfler import HARFLER, LAMELIF
 import ilerleme
 from karsilastir import karsilastir
@@ -29,7 +31,22 @@ app.config.update(
     # Kullanıcının ilerlemesi: ayrı dosya, Git'e eklenmez, hiçbir kayıt silinmez.
     ILERLEME_DB=Path(app.instance_path) / "ilerleme.db",
     SESSION_COOKIE_SAMESITE="Lax",
+    # "yerel": bilgisayarda tek kullanıcı, giriş yok. "site": Google ile giriş, herkesin ilerlemesi ayrı.
+    CALISMA_MODU=os.environ.get("CALISMA_MODU", "yerel"),
+    GOOGLE_CLIENT_ID=os.environ.get("GOOGLE_CLIENT_ID"),
+    GOOGLE_CLIENT_SECRET=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    IZINLI_EPOSTALAR=os.environ.get("IZINLI_EPOSTALAR", ""),
 )
+
+if app.config["CALISMA_MODU"] == "site":
+    from werkzeug.middleware.proxy_fix import ProxyFix
+
+    # alwaysdata uygulamanın önünde bir ara sunucu (proxy) çalıştırır: gerçek adres ve https
+    # bilgisi başlıklarda gelir. Bunu okumazsak Google'a dönüş adresi http:// olarak oluşur.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+    app.config.update(SESSION_COOKIE_SECURE=True, PREFERRED_URL_SCHEME="https")
+    if not (app.config["GOOGLE_CLIENT_ID"] and app.config["GOOGLE_CLIENT_SECRET"]):
+        raise RuntimeError("Site modunda GOOGLE_CLIENT_ID ve GOOGLE_CLIENT_SECRET ortam değişkenleri gerekli.")
 
 
 def gizli_anahtar(klasor: Path) -> str:
@@ -42,6 +59,7 @@ def gizli_anahtar(klasor: Path) -> str:
 
 
 app.secret_key = os.environ.get("GIZLI_ANAHTAR") or gizli_anahtar(Path(app.instance_path))
+giris.kur(app)
 
 
 # ---------- Veritabanı ----------
@@ -216,11 +234,12 @@ def yeni_lugat_oturumu(mod: str) -> None:
     tum = [s["anahtar"] for s in db().execute("SELECT anahtar FROM kayitlar WHERE tur = 'kelime'")]
     onceki = session.get("lugat", {})
     onceki_bilinmeyen = [a for a, bildi in onceki.get("sonuc", {}).items() if not bildi]
-    kartlar = ilerleme.oturum_sec(tum, ilerleme.son_durumlar(ilerleme_db()), mod, onceki_bilinmeyen)
+    kartlar = ilerleme.oturum_sec(tum, ilerleme.son_durumlar(ilerleme_db(), aktif_kullanici()), mod, onceki_bilinmeyen)
     session["lugat"] = {"kartlar": kartlar, "sira": 0, "sonuc": {}}
 
 
 @app.route("/lugat")
+@giris_gerekli
 def lugat():
     oturum = session.get("lugat")
     if not oturum or oturum["sira"] >= len(oturum["kartlar"]):
@@ -239,6 +258,7 @@ def lugat():
 
 
 @app.route("/lugat/cevap", methods=["POST"])
+@giris_gerekli
 def lugat_cevap():
     oturum = session.get("lugat")
     anahtar = request.form.get("anahtar", "")
@@ -246,7 +266,7 @@ def lugat_cevap():
     if not oturum or oturum["sira"] >= len(oturum["kartlar"]) or oturum["kartlar"][oturum["sira"]] != anahtar:
         return redirect(url_for("lugat"))
     bildi = request.form.get("bildi") == "1"
-    ilerleme.cevap_kaydet(ilerleme_db(), anahtar, bildi)
+    ilerleme.cevap_kaydet(ilerleme_db(), anahtar, bildi, aktif_kullanici())
     oturum["sonuc"][anahtar] = bildi
     oturum["sira"] += 1
     session["lugat"] = oturum
@@ -256,6 +276,7 @@ def lugat_cevap():
 
 
 @app.route("/lugat/sonuc")
+@giris_gerekli
 def lugat_sonuc():
     oturum = session.get("lugat")
     if not oturum or oturum["sira"] < len(oturum["kartlar"]):
@@ -267,11 +288,13 @@ def lugat_sonuc():
             kartlar.append({"kayit": k, "bildi": oturum["sonuc"].get(a, False),
                             "okunus": a.split("|", 1)[1]})
     toplam = ilerleme_db().execute(
-        "SELECT COUNT(DISTINCT anahtar) FROM lugat_cevaplari WHERE kullanici IS NULL").fetchone()[0]
+        "SELECT COUNT(DISTINCT anahtar) FROM lugat_cevaplari WHERE kullanici IS ?",
+        (aktif_kullanici(),)).fetchone()[0]
     return render_template("lugat_sonuc.html", kartlar=kartlar, gorulen=toplam)
 
 
 @app.route("/lugat/yeni", methods=["POST"])
+@giris_gerekli
 def lugat_yeni():
     mod = "yeni" if request.form.get("mod") == "yeni" else "devam"
     yeni_lugat_oturumu(mod)
@@ -302,9 +325,10 @@ def kitap_listesi():
 
 
 @app.route("/kitap/<kod>")
+@giris_gerekli
 def kitap_sayfalari(kod):
     bilgi = kitap_veya_404(kod)
-    durumlar = ilerleme.sayfa_durumlari(ilerleme_db(), kod)
+    durumlar = ilerleme.sayfa_durumlari(ilerleme_db(), kod, aktif_kullanici())
     sayfalar = [{"pdf": n, "no": kitaplar.gorunen_no(kod, n), "durum": durumlar.get(n)}
                 for n in kitaplar.hazir_sayfalar(kod)]
     return render_template("kitap_sayfalari.html", kitap=bilgi, kod=kod, sayfalar=sayfalar,
@@ -335,15 +359,16 @@ def satir_gorunumu(kod, sayfa, satir):
 
 
 @app.route("/kitap/<kod>/<int:sayfa>")
+@giris_gerekli
 def kitap_calis(kod, sayfa):
     bilgi = kitap_veya_404(kod)
     satirlar = sayfa_veya_404(kod, sayfa)
     b = ilerleme_db()
-    deneme = ilerleme.acik_deneme(b, kod, sayfa)
+    deneme = ilerleme.acik_deneme(b, kod, sayfa, aktif_kullanici())
     if deneme is None:
-        if ilerleme.son_bitmis_deneme(b, kod, sayfa):
+        if ilerleme.son_bitmis_deneme(b, kod, sayfa, aktif_kullanici()):
             return redirect(url_for("kitap_sonuc", kod=kod, sayfa=sayfa))
-        deneme_id = ilerleme.deneme_baslat(b, kod, sayfa)
+        deneme_id = ilerleme.deneme_baslat(b, kod, sayfa, aktif_kullanici())
     else:
         deneme_id = deneme["id"]
     cevaplar = ilerleme.satir_cevaplari(b, deneme_id)
@@ -358,11 +383,12 @@ def kitap_calis(kod, sayfa):
 
 
 @app.route("/kitap/<kod>/<int:sayfa>/cevap", methods=["POST"])
+@giris_gerekli
 def kitap_cevap(kod, sayfa):
     bilgi = kitap_veya_404(kod)
     satirlar = sayfa_veya_404(kod, sayfa)
     b = ilerleme_db()
-    deneme = ilerleme.acik_deneme(b, kod, sayfa)
+    deneme = ilerleme.acik_deneme(b, kod, sayfa, aktif_kullanici())
     no = request.form.get("satir", type=int)
     if deneme is None or no is None or not 1 <= no <= len(satirlar):
         return redirect(url_for("kitap_calis", kod=kod, sayfa=sayfa))
@@ -380,11 +406,12 @@ def kitap_cevap(kod, sayfa):
 
 
 @app.route("/kitap/<kod>/<int:sayfa>/sonuc")
+@giris_gerekli
 def kitap_sonuc(kod, sayfa):
     bilgi = kitap_veya_404(kod)
     satirlar = sayfa_veya_404(kod, sayfa)
     b = ilerleme_db()
-    deneme = ilerleme.son_bitmis_deneme(b, kod, sayfa)
+    deneme = ilerleme.son_bitmis_deneme(b, kod, sayfa, aktif_kullanici())
     if deneme is None:
         return redirect(url_for("kitap_calis", kod=kod, sayfa=sayfa))
     cevaplar = ilerleme.satir_cevaplari(b, deneme["id"])
@@ -398,12 +425,13 @@ def kitap_sonuc(kod, sayfa):
 
 
 @app.route("/kitap/<kod>/<int:sayfa>/yeniden", methods=["POST"])
+@giris_gerekli
 def kitap_yeniden(kod, sayfa):
     kitap_veya_404(kod)
     sayfa_veya_404(kod, sayfa)
     b = ilerleme_db()
-    if ilerleme.acik_deneme(b, kod, sayfa) is None:
-        ilerleme.deneme_baslat(b, kod, sayfa)
+    if ilerleme.acik_deneme(b, kod, sayfa, aktif_kullanici()) is None:
+        ilerleme.deneme_baslat(b, kod, sayfa, aktif_kullanici())
     return redirect(url_for("kitap_calis", kod=kod, sayfa=sayfa))
 
 

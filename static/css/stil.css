@@ -50,6 +50,8 @@ a { color: var(--vurgu); }
   padding: 4px 10px; border: 1px solid var(--cizgi); border-radius: 999px;
   text-decoration: none; color: var(--metin);
 }
+.hesap { display: flex; align-items: center; gap: 4px; font-size: .9rem; color: var(--soluk); }
+.hesap form { margin: 0; }
 .yazi-secici a.secili { background: var(--vurgu); border-color: var(--vurgu); color: var(--zemin); }
 
 /* Osmanlıca metin: seçilen yazı tipine göre */
