@@ -32,6 +32,30 @@ def sayfa_resmi(sayfa) -> Image.Image:
     return Image.frombytes("L", (pm.width, pm.height), pm.samples)
 
 
+def egiklik(resim: Image.Image) -> float:
+    """Taramanın eğiklik açısı (derece). Satırlar düz iken yatay mürekkep profili en "keskin" olur;
+    küçük açılar denenip profil varyansının en büyük olduğu açı seçilir."""
+    kucuk = resim.resize((resim.width // 3, resim.height // 3))
+    a = np.asarray(kucuk, dtype=np.float32)
+    murekkep = (a < np.percentile(a, 90) - 60).astype(np.float32)
+    en_iyi, en_iyi_puan = 0.0, -1.0
+    for aci in np.arange(-3, 3.01, 0.25):
+        don = Image.fromarray((murekkep * 255).astype(np.uint8)).rotate(aci, resample=Image.BILINEAR)
+        puan = float(np.asarray(don, dtype=np.float32).mean(axis=1).var())
+        if puan > en_iyi_puan:
+            en_iyi, en_iyi_puan = float(aci), puan
+    return en_iyi
+
+
+def duzelt(resim: Image.Image) -> Image.Image:
+    """Belirgin eğik taramaları düzeltir; düz sayfalara dokunmaz (bulunan satırlar değişmesin)."""
+    aci = egiklik(resim)
+    if abs(aci) < 2:
+        return resim
+    kagit = int(np.percentile(np.asarray(resim), 90))
+    return resim.rotate(aci, resample=Image.BICUBIC, fillcolor=kagit)
+
+
 def satirlari_bul(resim: Image.Image) -> list[tuple[int, int]]:
     a = np.asarray(resim, dtype=np.float32)
     h, w = a.shape
@@ -126,7 +150,7 @@ def main():
     json_yol = HEDEF / "satirlar.json"
     veri = json.loads(json_yol.read_text(encoding="utf-8")) if json_yol.exists() else {}
     for n in range(a.ilk, a.son + 1):
-        resim = sayfa_resmi(d[n - 1])
+        resim = duzelt(sayfa_resmi(d[n - 1]))
         satirlar = satirlari_bul(resim)
         resim.save(HEDEF / "sayfalar" / f"s{n:03d}.jpg", quality=72, optimize=True)
         veri[str(n)] = {"genislik": resim.width, "yukseklik": resim.height,
