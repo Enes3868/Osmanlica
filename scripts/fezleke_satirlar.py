@@ -71,20 +71,27 @@ def satirlari_bul(resim: Image.Image) -> list[tuple[int, int]]:
     satir = murekkep[:, x0:x1].mean(axis=1)
     # Başlık çizgisi: sayfanın üst kısmında, sütun boyunca uzanan yatay çizgi.
     # Çizgi ve üstündeki başlık (sayfa numarası, kitap/bab adı) satır sayılmaz.
-    # Çizgi incedir (birkaç piksel); yoğun ama kalın bantlar metin satırıdır, çizgi sayılmaz.
-    ust = int(h * 0.2)
-    baslangic, y = 0, 0
-    while y < ust:
-        if satir[y] > 0.3:
-            son = y
-            while son + 1 < h and satir[son + 1] > 0.3:
-                son += 1
-            if son - y + 1 <= 6:
-                baslangic = son + 2
-                break
-            y = son + 1
-        else:
-            y += 1
+    # Başlık çizgisi sayfanın en üstündedir (ilk %10). Önce çok yoğun bir satır ara (çizgi, metin
+    # satırlarından belirgin biçimde koyudur); bulunamazsa ince ve yoğun bir bant ara.
+    # Yoğun ama kalın bantlar metin satırıdır, çizgi sayılmaz.
+    ust = int(h * 0.1)
+    baslangic = 0
+    cok_yogun = np.where(satir[:ust] > 0.5)[0]
+    if len(cok_yogun):
+        baslangic = int(cok_yogun[-1]) + 2
+    else:
+        y = 0
+        while y < ust:
+            if satir[y] > 0.3:
+                son = y
+                while son + 1 < h and satir[son + 1] > 0.3:
+                    son += 1
+                if son - y + 1 <= 6:
+                    baslangic = son + 2
+                    break
+                y = son + 1
+            else:
+                y += 1
     satir = np.convolve(satir, np.ones(3) / 3, mode="same")
     # Düşük eşik: kısa (paragraf sonu) satırlar da az mürekkepli olsa yakalanmalı.
     esik = max(0.004, satir.max() * 0.02)
