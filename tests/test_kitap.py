@@ -133,3 +133,8 @@ def test_sayfa_tekrar_yapilabilir(istemci, ilk_sayfa):
     istemci.post(f"/kitap/fezleke/{ilk_sayfa}/yeniden")
     html = istemci.get(f"/kitap/fezleke/{ilk_sayfa}").get_data(as_text=True)
     assert 'name="satir" value="1"' in html             # yeni deneme baştan başlar
+
+
+def test_kitapta_sapkasiz_yazim_dogru():
+    k = karsilastir("Sultân-ı müşârün-ileyh vâlî", "sultanı müşarünileyh vali")
+    assert k.dogru_sayisi == k.toplam == 3

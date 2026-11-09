@@ -66,3 +66,18 @@ def test_kesme_isareti_onemsiz():
 def test_ayrik_yazilmis_sapka():
     # "a" + birleşik şapka (U+0302) da "â" gibi davranmalı
     assert kontrol_et("kâtib", KATIP).dogru
+
+
+def test_diger_okuma_isaretleri_de_onemsiz():
+    # Vikisözlük okunuşlarında şapka dışında işaretler de var: ā, ṭ, ḱ, ʾ
+    assert kontrol_et("mahkum", [("mahḱum", True)]).dogru
+    assert kontrol_et("valide-i sultan", [("vâlide-i sulṭân", True)]).dogru
+    assert kontrol_et("lutfi", [("luṭfī", True)]).dogru
+    assert normallestir("ʾazîz") == "aziz"
+
+
+def test_turk_harfleri_korunur():
+    # İşaretleri atarken Türk alfabesinin kendi harfleri bozulmamalı
+    assert normallestir("Çöğüş ŞIK") == "çöğüş şık"
+    assert not kontrol_et("cok", [("çok", True)]).dogru
+    assert not kontrol_et("gul", [("gül", True)]).dogru

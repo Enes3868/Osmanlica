@@ -3,7 +3,8 @@
 Kurallar (onaylanan tasarım):
 - Büyük-küçük harf farkı önemsizdir; Türkçe kuralı kullanılır (I→ı, İ→i).
 - ı ile i ayrı harflerdir ("kıl" ≠ "kil").
-- Şapka farkı hata değildir (â→a, î→i, û→u); ekranda doğru yazım gösterilir.
+- Şapka ve diğer okuma işaretleri hata değildir (â→a, î→i, û→u, ā→a, ṭ→t, ḱ→k ...);
+  ekranda doğru yazım gösterilir. Yalnızca Türk alfabesinin kendi harfleri (ç ğ ı ö ş ü) korunur.
 - Noktalama, kesme işareti ve fazla boşluklar önemsizdir (cümleler için).
 - Aynı yazılışın birden çok geçerli okunuşu olabilir; hepsi doğru sayılır:
     * yazım çeşitleri: aynı kelimenin farklı yazımları (kitâb / kitap)
@@ -13,8 +14,19 @@ Kurallar (onaylanan tasarım):
 from dataclasses import dataclass, field
 import unicodedata
 
-SAPKALAR = str.maketrans({"â": "a", "î": "i", "û": "u"})
-KESME_ISARETLERI = str.maketrans({"'": None, "’": None, "ʼ": None})
+TURK_HARFLERI = set("abcçdefgğhıijklmnoöprsştuüvyzqwx")
+KESME_ISARETLERI = {"'", "’", "‘", "`", "´"}
+
+
+def isaretsiz(harf: str) -> str:
+    """Türk alfabesinde olmayan işaretli harfi yalın hâline indirir (â→a, ṭ→t, ḱ→k).
+    Ayın/hemze gibi işaret harfleri (ʿ ʾ ʼ) ve kesme işaretleri tamamen düşer."""
+    if harf in TURK_HARFLERI or not harf.isalpha():
+        return "" if harf in KESME_ISARETLERI else harf
+    if unicodedata.category(harf) == "Lm":   # ʿ ʾ ʼ ʻ gibi değiştirici harfler
+        return ""
+    yalin = "".join(c for c in unicodedata.normalize("NFD", harf) if not unicodedata.combining(c))
+    return yalin
 
 
 def turkce_kucuk_harf(metin: str) -> str:
@@ -27,7 +39,7 @@ def normallestir(metin: str) -> str:
     """Karşılaştırma için metni sadeleştirir."""
     # NFC: "a" + birleşik şapka gibi ayrık yazılmış harfleri tek harfe birleştirir.
     metin = unicodedata.normalize("NFC", metin)
-    metin = turkce_kucuk_harf(metin).translate(SAPKALAR).translate(KESME_ISARETLERI)
+    metin = "".join(isaretsiz(h) for h in turkce_kucuk_harf(metin))
     # Harf ve rakam dışındaki her şeyi (noktalama, tire) boşluğa çevir.
     metin = "".join(h if h.isalnum() else " " for h in metin)
     return " ".join(metin.split())
