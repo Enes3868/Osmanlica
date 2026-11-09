@@ -10,17 +10,19 @@
   font-display: swap;
 }
 
+/* Koyu tema her zaman kullanılır (bilgisayarın açık/koyu ayarından bağımsız). */
 :root {
-  --zemin: #f6f1e7;
-  --kart: #fffdf8;
-  --metin: #2b2620;
-  --soluk: #6f665b;
-  --vurgu: #7a3b1d;
-  --cizgi: #e2d8c6;
-  --dogru: #2f6b3a;
-  --dogru-zemin: #e6f2e6;
-  --yanlis: #9a2f22;
-  --yanlis-zemin: #f8e5e1;
+  color-scheme: dark;            /* form alanları ve kaydırma çubukları da koyu */
+  --zemin: #1d1a16;
+  --kart: #27231e;
+  --metin: #efe7da;
+  --soluk: #b3a896;
+  --vurgu: #e0a070;
+  --cizgi: #3d362e;
+  --dogru: #8fd19a;
+  --dogru-zemin: #22352a;
+  --yanlis: #f0a090;
+  --yanlis-zemin: #3d2622;
 }
 
 * { box-sizing: border-box; }
@@ -48,7 +50,7 @@ a { color: var(--vurgu); }
   padding: 4px 10px; border: 1px solid var(--cizgi); border-radius: 999px;
   text-decoration: none; color: var(--metin);
 }
-.yazi-secici a.secili { background: var(--vurgu); border-color: var(--vurgu); color: #fff; }
+.yazi-secici a.secili { background: var(--vurgu); border-color: var(--vurgu); color: var(--zemin); }
 
 /* Osmanlıca metin: seçilen yazı tipine göre */
 .osm { font-family: "Amiri", serif; direction: rtl; unicode-bidi: isolate; }
@@ -88,7 +90,7 @@ a { color: var(--vurgu); }
 }
 button, .dugme {
   display: inline-block; margin-top: 8px; padding: 10px 18px; border: 0; border-radius: 8px;
-  background: var(--vurgu); color: #fff; font-size: 1rem; text-decoration: none; cursor: pointer;
+  background: var(--vurgu); color: var(--zemin); font-size: 1rem; text-decoration: none; cursor: pointer;
 }
 
 .sonuc { padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; }
@@ -233,12 +235,3 @@ button, .dugme {
 .harf-tablosu td.ad { text-align: left; }
 .harf-tablosu .harf-not { display: block; font-size: .75rem; color: var(--soluk); white-space: normal; min-width: 140px; }
 .harf-tablosu tbody tr:nth-child(even) { background: color-mix(in srgb, var(--zemin) 40%, var(--kart)); }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --zemin: #1d1a16; --kart: #27231e; --metin: #efe7da; --soluk: #b3a896;
-    --vurgu: #e0a070; --cizgi: #3d362e;
-    --dogru: #8fd19a; --dogru-zemin: #22352a; --yanlis: #f0a090; --yanlis-zemin: #3d2622;
-  }
-  .yazi-secici a.secili, button, .dugme { color: #1d1a16; }
-}
