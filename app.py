@@ -36,6 +36,8 @@ app.config.update(
     GOOGLE_CLIENT_ID=os.environ.get("GOOGLE_CLIENT_ID"),
     GOOGLE_CLIENT_SECRET=os.environ.get("GOOGLE_CLIENT_SECRET"),
     IZINLI_EPOSTALAR=os.environ.get("IZINLI_EPOSTALAR", ""),
+    # Gizlilik sayfasında gösterilecek iletişim adresi (kodda/GitHub'da değil, sunucuda ayarlanır).
+    ILETISIM_EPOSTA=os.environ.get("ILETISIM_EPOSTA", ""),
 )
 
 if app.config["CALISMA_MODU"] == "site":
@@ -438,6 +440,11 @@ def kitap_yeniden(kod, sayfa):
 @app.route("/harfler")
 def harfler():
     return render_template("harfler.html", harfler=HARFLER + [LAMELIF])
+
+
+@app.route("/gizlilik")
+def gizlilik():
+    return render_template("gizlilik.html", iletisim=app.config["ILETISIM_EPOSTA"])
 
 
 @app.route("/kaynaklar")

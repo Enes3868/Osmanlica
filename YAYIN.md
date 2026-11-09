@@ -19,7 +19,17 @@ Site modu **ortam değişkenleriyle** açılır. Google anahtarları ve gizli an
 1. <https://console.cloud.google.com> adresine kendi Google hesabınızla girin ve yeni bir proje oluşturun (ör. "Osmanlica").
 2. **APIs & Services → OAuth consent screen** (Google Auth Platform):
    - Kullanıcı türü: **External**.
-   - Uygulama adı (ör. "Osmanlıca Eğitim"), destek e-postası ve geliştirici e-postası: kendi adresiniz.
+   - **Branding** sayfası (uygulamayı yayına alabilmek için hepsi gerekli):
+
+     | Alan | Değer |
+     |---|---|
+     | Uygulama adı | ör. `Osmanlıca Eğitim` |
+     | Destek e-postası / geliştirici e-postası | kendi adresiniz |
+     | Logo | **Boş bırakın** (logo yüklenirse Google inceleme ister) |
+     | Ana sayfa (Page d'accueil) | `https://HESAP.alwaysdata.net` |
+     | Gizlilik politikası | `https://HESAP.alwaysdata.net/gizlilik` (uygulamada hazır sayfa) |
+     | Kullanım koşulları | boş bırakılabilir |
+     | Yetkili alan adları (Domaines autorisés) | `HESAP.alwaysdata.net` |
    - Kapsamlar (scopes): `openid`, `email`, `profile` yeterlidir (bunlar "hassas" değildir).
    - **Yayın durumu (Publishing status):** Uygulama ilk oluşturulduğunda "Testing" durumundadır ve o hâlde
      yalnızca "Test users" listesindeki adresler girebilir. **Herkesin girebilmesi için "Publish app"
@@ -74,6 +84,7 @@ Ortam değişkenleri (her biri ayrı satır, `AD=değer`):
 | `GOOGLE_CLIENT_ID` | 1. adımdaki Client ID |
 | `GOOGLE_CLIENT_SECRET` | 1. adımdaki Client secret |
 | `GIZLI_ANAHTAR` | 2a'da ürettiğiniz uzun rastgele metin |
+| `ILETISIM_EPOSTA` | Gizlilik sayfasında "verilerimi silin" istekleri için gösterilecek adres (ör. destek e-postanız) |
 | `IZINLI_EPOSTALAR` | **Herkes girebilsin istiyorsanız bu değişkeni hiç eklemeyin.** Sınırlamak isterseniz: `anne@gmail.com,ali@gmail.com` |
 
 Sitenin **SSL / HTTPS** ayarında "Force HTTPS" (HTTPS'e yönlendir) açık olsun. Kaydedip siteyi yeniden başlatın.

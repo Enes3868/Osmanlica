@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block baslik %}Gizlilik{% endblock %}
+{% block icerik %}
+<h1>Gizlilik politikası</h1>
+<p class="not">Son güncelleme: 9 Kasım 2026</p>
+
+<p>Osmanlıca Eğitim, Osmanlıca okuma ve eski Türkçe kelime çalışmak için ücretsiz ve açık kaynaklı bir
+  uygulamadır. Bu sayfa, sitede hangi bilgilerin neden tutulduğunu açıklar.</p>
+
+<h2 class="ara-baslik">Google ile giriş yaptığınızda alınan bilgiler</h2>
+<ul>
+  <li><strong>Google hesap kimliğiniz</strong> (Google'ın hesabınıza verdiği değişmez numara): ilerlemenizi size ait
+    olarak saklamak için.</li>
+  <li><strong>Adınız ve e-posta adresiniz</strong>: sayfanın üstünde kimin giriş yaptığını göstermek için.</li>
+</ul>
+<p>Google şifrenizi hiçbir zaman görmeyiz; giriş Google'ın kendi sayfasında yapılır. Başka hiçbir Google verisine
+  (kişiler, dosyalar, e-postalar vb.) erişim istenmez.</p>
+
+<h2 class="ara-baslik">Çalışırken kaydedilenler</h2>
+<ul>
+  <li><strong>Lügat:</strong> hangi kelimeye "Biliyorum" ya da "Bilmiyorum" dediğiniz ve zamanı.</li>
+  <li><strong>Kitap tercüme:</strong> çalıştığınız sayfa, her satıra yazdığınız metin, puanınız ve zamanı.</li>
+</ul>
+<p>Bu kayıtlar yalnızca size ilerlemenizi göstermek ve tekrar edeceğiniz kelimeleri seçmek için kullanılır.
+  Başka kullanıcılar sizin kayıtlarınızı göremez.</p>
+
+<h2 class="ara-baslik">Çerezler</h2>
+<ul>
+  <li><strong>Oturum çerezi:</strong> giriş yaptığınızı ve o anki çalışma oturumunuzu hatırlamak için.</li>
+  <li><strong>Yazı tercihi çerezi:</strong> rik'a ya da matbu yazı seçiminizi hatırlamak için.</li>
+</ul>
+<p>Reklam, izleme ya da istatistik çerezi kullanılmaz.</p>
+
+<h2 class="ara-baslik">Bilgilerin saklanması ve paylaşılması</h2>
+<p>Bilgiler sitenin barındırıldığı sunucuda (alwaysdata) saklanır. Hiçbir bilgi satılmaz, reklam için
+  kullanılmaz ve üçüncü kişilerle paylaşılmaz.</p>
+
+<h2 class="ara-baslik">Bilgilerinizin silinmesi</h2>
+<p>Kayıtlarınızın silinmesini istediğinizde site sahibine yazmanız yeterlidir{% if iletisim %}:
+  <a href="mailto:{{ iletisim }}">{{ iletisim }}</a>{% endif %}. Hesabınıza ait bütün kayıtlar silinir.
+  Google hesabınızdan bu siteye verdiğiniz izni dilediğiniz zaman
+  <a href="https://myaccount.google.com/permissions" rel="noopener">Google hesap ayarlarınızdan</a> kaldırabilirsiniz.</p>
+
+<h2 class="ara-baslik">Açık kaynak</h2>
+<p>Uygulamanın kaynak kodu herkese açıktır: <a href="https://github.com/Enes3868/Osmanlica" rel="noopener">github.com/Enes3868/Osmanlica</a>.</p>
+{% endblock %}

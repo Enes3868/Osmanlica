@@ -107,3 +107,11 @@ def test_kitap_denemesi_kullaniciya_ait(site, tmp_path):
     with sqlite3.connect(tmp_path / "ilerleme.db") as b:
         assert b.execute("SELECT COUNT(DISTINCT kullanici) FROM kitap_denemeleri").fetchone()[0] == 2
     b.close()
+
+
+def test_gizlilik_sayfasi_herkese_acik(site, monkeypatch):
+    monkeypatch.setitem(uygulama.app.config, "ILETISIM_EPOSTA", "iletisim@example.com")
+    r = site.get("/gizlilik")
+    html = r.get_data(as_text=True)
+    assert r.status_code == 200 and "Gizlilik politikası" in html and "iletisim@example.com" in html
+    assert "/gizlilik" in site.get("/").get_data(as_text=True)   # alt bilgide bağlantı
