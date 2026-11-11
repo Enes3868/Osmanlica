@@ -138,3 +138,19 @@ def test_sayfa_tekrar_yapilabilir(istemci, ilk_sayfa):
 def test_kitapta_sapkasiz_yazim_dogru():
     k = karsilastir("Sultân-ı müşârün-ileyh vâlî", "sultanı müşarünileyh vali")
     assert k.dogru_sayisi == k.toplam == 3
+
+
+def test_birden_cok_kabul_edilen_okunus():
+    for cevap in ("ülkâ bu iki", "ülke bu iki", "ÜLKE BU İKİ"):
+        k = karsilastir("ülkâ|ülke bu iki", cevap)
+        assert k.dogru_sayisi == k.toplam == 3, cevap
+    # Ekranda yalnızca ilk okunuş gösterilir
+    assert [w.metin for w in karsilastir("ülkâ|ülke bu", "olga bu").dogru_metin] == ["ülkâ", "bu"]
+    assert karsilastir("ülkâ|ülke bu", "olga bu").cevap_metin[0].beklenen == "ülkâ"
+
+
+def test_kullanici_bildirimi_sayfa4_satir5():
+    # Kullanıcının bildirdiği satır: "bu" artık doğru metinde var
+    satir = kitap.sayfa_satirlari("fezleke", 7)[4].metin
+    k = karsilastir(satir, "Osman Gazinin varis olduğu ülke bu iki devletin serhaddinde")
+    assert k.dogru_sayisi == k.toplam

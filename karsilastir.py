@@ -3,6 +3,9 @@
 Kelimeleri sırayla yan yana koymak yetmez: kullanıcı bir kelimeyi atlarsa sonraki bütün
 kelimeler kayar. Bu yüzden iki kelime dizisi "hizalanır" (difflib.SequenceMatcher, `git diff`
 ile aynı fikir): ortak kelimeler eşleştirilir, aradaki farklar yanlış / eksik / fazla diye ayrılır.
+
+Doğru metinde bir kelimenin birden çok kabul edilen okunuşu "|" ile yazılabilir: "ülkâ|ülke".
+Ekranda ilki gösterilir; kullanıcı hangisini yazarsa yazsın doğru sayılır.
 """
 
 from dataclasses import dataclass, field
@@ -42,8 +45,13 @@ class Karsilastirma:
 
 
 def karsilastir(dogru: str, cevap: str) -> Karsilastirma:
-    d, c = kelimeler(dogru), kelimeler(cevap)
-    dn, cn = [kelime_normal(k) for k in d], [kelime_normal(k) for k in c]
+    secenekler = [k.split("|") for k in kelimeler(dogru)]
+    d = [s[0] for s in secenekler]                      # ekranda gösterilen okunuş
+    dn = [kelime_normal(s[0]) for s in secenekler]
+    # Kabul edilen diğer okunuşlar, karşılaştırmada ilk okunuşa eşlenir.
+    esdeger = {kelime_normal(o): kelime_normal(s[0]) for s in secenekler for o in s[1:]}
+    c = kelimeler(cevap)
+    cn = [esdeger.get(kelime_normal(k), kelime_normal(k)) for k in c]
     sonuc = Karsilastirma(toplam=len(d))
     for islem, d0, d1, c0, c1 in difflib.SequenceMatcher(None, dn, cn, autojunk=False).get_opcodes():
         if islem == "equal":

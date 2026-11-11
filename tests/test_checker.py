@@ -81,3 +81,13 @@ def test_turk_harfleri_korunur():
     assert normallestir("Çöğüş ŞIK") == "çöğüş şık"
     assert not kontrol_et("cok", [("çok", True)]).dogru
     assert not kontrol_et("gul", [("gül", True)]).dogru
+
+
+def test_buyuk_harf_yazim_farki_sayilmaz():
+    # "Şerif" ile "şerif" aynı yazımdır; "Yazımı: şerif" uyarısı gösterilmemeli
+    s = kontrol_et("Şerif", [("şerif", True)])
+    assert s.dogru and not s.yazim_farki
+    assert not kontrol_et("İSTANBUL", [("İstanbul", True)]).yazim_farki
+    assert not kontrol_et(" şerif. ", [("şerif", True)]).yazim_farki
+    # Şapka farkı ise bilgi olarak gösterilmeye devam eder
+    assert kontrol_et("Katip", [("kâtip", True)]).yazim_farki

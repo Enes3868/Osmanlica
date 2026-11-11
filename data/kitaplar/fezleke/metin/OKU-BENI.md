@@ -23,5 +23,7 @@ Dosyadaki her satır, `../satirlar.json` içinde o sayfa için otomatik bulunmu�
 - Günümüz Türk alfabesi; uzun ünlüler için şapka (â, î, û) kullanılır ama karşılaştırmada önemsizdir.
 - Tamlamalar çizgiyle yazılır: `Devlet-i Osmâniye`, `hazret-i pâdişâhî` (karşılaştırmada "devleti" de doğru sayılır).
 - Ayın ve hemze için kesme işareti: `ta'dîl`, `şürû'` (karşılaştırmada önemsizdir).
+- Birden çok kabul edilen okunuşu olan kelime `|` ile yazılır: `ülkâ|ülke` (ekranda ilki gösterilir,
+  kullanıcı hangisini yazarsa doğru sayılır).
 - Osmanlı rakamları Batı rakamlarıyla yazılır: `٦٩٩` → `699`.
 - Kelimeler kitaptaki imlaya göre okunur (ör. `olmağla`, `olunmuşdur`), günümüz imlasına çevrilmez.

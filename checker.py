@@ -45,6 +45,15 @@ def normallestir(metin: str) -> str:
     return " ".join(metin.split())
 
 
+def yazim_bicimi(metin: str) -> str:
+    """"Yazımı şöyledir" uyarısı için karşılaştırma: büyük-küçük harf, noktalama ve boşluk farkı
+    yazım farkı sayılmaz ("Şerif" ile "şerif" aynı); şapka ve kesme işareti farkı sayılır
+    ("şerif" yazana "şerîf" gösterilir)."""
+    metin = turkce_kucuk_harf(unicodedata.normalize("NFC", metin))
+    metin = "".join(h if h.isalnum() or h in KESME_ISARETLERI else " " for h in metin)
+    return " ".join(metin.split())
+
+
 @dataclass
 class Sonuc:
     dogru: bool
@@ -82,7 +91,7 @@ def kontrol_et(cevap: str, okunuslar: list[tuple[str, bool]],
         dogru=True,
         asil=asil,
         eslesen=eslesen,
-        yazim_farki=unicodedata.normalize("NFC", cevap.strip()) != eslesen,
+        yazim_farki=yazim_bicimi(cevap) != yazim_bicimi(eslesen),
         farkli_kelime=farkli,
         # Başka kelime olarak okuduysa kartın asıl okunuşu zaten ayrıca gösterilir.
         cesitler=[o for o in kendi if o != eslesen and not (farkli and o == asil)],
